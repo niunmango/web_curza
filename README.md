@@ -121,8 +121,23 @@ Debe mostrar los 7 contenedores activos:
 - `curza_strapi`
 - `curza_postgres`
 
-### 3. Ejecutar la Ingestión Inicial de Contenidos
-Para popular Meilisearch y Qdrant con los contenidos históricos y normativas:
+### 3. Ejecutar la Inicialización de Contenidos (Seeding / Ingestión)
+
+El repositorio incluye un archivo de respaldo con los 706 documentos institucionales ya procesados (`importer/seed_curza_content.json`).
+
+**Opción A: Carga Rápida Offline (Recomendada - Lista en 1 minuto):**
+Pobla Meilisearch y Qdrant directamente desde los datos empaquetados en el repositorio:
+```bash
+podman run --rm --network curza_network \
+  -v $(pwd)/importer:/importer:ro \
+  -e RAG_INGEST_URL=http://curza_rag_api:8000/api/rag/ingest \
+  -e MEILI_URL=http://curza_search:7700 \
+  -e MEILISEARCH_MASTER_KEY=curza_secure_search_key_2026 \
+  python:3.11-slim bash -c "python /importer/seed_database.py"
+```
+
+**Opción B: Sincronización en Vivo desde la API de WordPress:**
+Descarga las últimas publicaciones en vivo desde los servidores de la universidad:
 ```bash
 podman run --rm --network curza_network \
   -v $(pwd)/importer:/importer:ro \
