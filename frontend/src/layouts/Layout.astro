@@ -16,7 +16,9 @@ const {
     <meta charset="UTF-8" />
     <meta name="description" content={description} />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="64x64" href="/favicon.png" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" href="/images/CURZAS.png" />
     <title>{title}</title>
     <!-- Google Fonts Poppins (Tipografía Institucional UNComa) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -46,17 +48,21 @@ const {
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-20">
           <div class="flex items-center gap-3">
-            <a href="/" class="flex items-center gap-3 group">
-              <!-- Logotipo Tipográfico Institucional -->
-              <div class="bg-[#003366] text-white font-extrabold text-xl sm:text-2xl px-3 py-1 rounded tracking-tight group-hover:bg-[#01579B] transition shadow-sm">
-                CURZAS
-              </div>
-              <div class="hidden sm:block border-l-2 border-slate-200 pl-3 py-0.5">
-                <span class="text-[11px] font-bold text-[#003366] tracking-wide block uppercase leading-tight">
-                  Complejo Universitario Regional
+            <a href="/" class="flex items-center gap-3.5 group">
+              <!-- Logotipo Oficial CURZAS -->
+              <img 
+                src="/images/CURZAS.png" 
+                alt="Logo Oficial CURZAS - Universidad Nacional del Comahue" 
+                class="h-12 w-auto object-contain transition-transform group-hover:scale-105"
+                width="48"
+                height="48"
+              />
+              <div class="border-l-2 border-slate-200 pl-3 py-0.5">
+                <span class="text-sm font-extrabold text-[#003366] tracking-tight block leading-tight">
+                  CURZAS
                 </span>
                 <span class="text-[10px] font-semibold text-[#F39200] tracking-wider block uppercase leading-tight">
-                  Zona Atlántica y Sur · UNComa
+                  Universidad Nacional del Comahue
                 </span>
               </div>
             </a>
@@ -103,15 +109,23 @@ const {
           <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
             <!-- Columna 1: Identidad -->
             <div class="md:col-span-2">
-              <div class="flex items-center gap-2 mb-3">
-                <span class="bg-[#01579B] text-white font-extrabold text-lg px-2.5 py-0.5 rounded">CURZAS</span>
-                <span class="text-white font-bold text-base tracking-wide">UNComa</span>
+              <div class="flex items-center gap-3 mb-4">
+                <img 
+                  src="/images/logo_blanco.png" 
+                  alt="Logo CURZAS" 
+                  class="h-12 w-auto object-contain opacity-95" 
+                  width="48" 
+                  height="48" 
+                />
+                <div>
+                  <span class="text-white font-extrabold text-lg tracking-wide block leading-none">CURZAS</span>
+                  <span class="text-[#FFBC7D] text-xs font-semibold tracking-wider uppercase block mt-1">Universidad Nacional del Comahue</span>
+                </div>
               </div>
               <h3 class="text-white font-semibold text-sm mb-2">
                 Complejo Universitario Regional Zona Atlántica y Sur
               </h3>
               <p class="text-xs text-slate-400 leading-relaxed max-w-md">
-                Universidad Nacional del Comahue.<br />
                 Sede Central: Monseñor Esandi y Ayacucho, Viedma, Río Negro, Argentina.<br />
                 Educación pública, gratuita, inclusiva y de excelencia en la Patagonia Norte y la Costa Atlántica.
               </p>

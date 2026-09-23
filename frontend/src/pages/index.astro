@@ -3,10 +3,28 @@ import Layout from '../layouts/Layout.astro';
 ---
 
 <Layout title="Portal Institucional CURZAS - Universidad Nacional del Comahue">
-  <!-- Hero Section Institucional UNComa -->
-  <section class="bg-gradient-to-b from-[#002B54] via-[#003366] to-[#002244] text-white py-16 px-4 sm:px-6 lg:px-8 border-b-4 border-[#F39200]">
-    <div class="max-w-4xl mx-auto text-center">
-      <div class="inline-flex items-center gap-2 bg-white/10 border border-white/15 rounded-full px-4 py-1 text-xs font-semibold tracking-wider uppercase mb-5 text-[#FFBC7D]">
+  <!-- Hero Section Institucional UNComa con Fondo e Isotipo Oficial -->
+  <section class="relative bg-gradient-to-b from-[#002B54] via-[#003366] to-[#002244] text-white py-14 sm:py-16 px-4 sm:px-6 lg:px-8 border-b-4 border-[#F39200] overflow-hidden">
+    <!-- Fondo Institucional Sutil con mix-blend -->
+    <div class="absolute inset-0 z-0 opacity-15 mix-blend-luminosity pointer-events-none">
+      <img src="/images/fondo_ingreso.jpg" alt="" class="w-full h-full object-cover object-center" />
+    </div>
+
+    <div class="relative z-10 max-w-4xl mx-auto text-center">
+      <!-- Isotipo / Escudo Oficial CURZAS -->
+      <div class="flex justify-center mb-4">
+        <a href="/" class="inline-block transform hover:scale-105 transition-transform duration-200">
+          <img 
+            src="/images/CURZAS.png" 
+            alt="Escudo Institucional CURZAS - Universidad Nacional del Comahue" 
+            class="h-20 sm:h-24 w-auto object-contain drop-shadow-lg"
+            width="96"
+            height="96"
+          />
+        </a>
+      </div>
+
+      <div class="inline-flex items-center gap-2 bg-white/10 border border-white/15 rounded-full px-4 py-1 text-xs font-semibold tracking-wider uppercase mb-4 text-[#FFBC7D]">
         <span>UNComa</span>
         <span class="text-white/40">·</span>
         <span>Universidad Nacional del Comahue</span>
@@ -170,6 +188,125 @@ import Layout from '../layouts/Layout.astro';
           <span class="text-[11px] text-slate-400">Proyectos y becas</span>
         </div>
       </a>
+    </div>
+
+    <!-- Sección Fotográfica: Instalaciones y Campus CURZAS -->
+    <div class="mt-20">
+      <div class="text-center mb-10">
+        <div class="inline-block text-xs font-bold text-[#F39200] uppercase tracking-widest mb-1">
+          Nuestra Sede en Viedma
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-bold text-[#003366] tracking-tight">Espacios y Vida Universitaria</h2>
+        <p class="text-slate-500 text-xs sm:text-sm mt-1 max-w-xl mx-auto">
+          Conocé las instalaciones académicas, biblioteca, aulas y dependencias estudiantiles del complejo
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Foto 1: Biblioteca -->
+        <div class="bg-white rounded-xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-md transition group flex flex-col">
+          <div class="relative h-44 overflow-hidden bg-slate-100">
+            <img 
+              src="/images/fondos/fondo2.jpg" 
+              alt="Biblioteca CURZAS" 
+              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              loading="lazy"
+            />
+            <span class="absolute top-2.5 left-2.5 bg-[#003366]/90 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded">
+              Biblioteca
+            </span>
+          </div>
+          <div class="p-4 flex flex-col flex-grow justify-between">
+            <div>
+              <h3 class="font-bold text-sm text-[#003366] mb-1">Biblioteca del Complejo</h3>
+              <p class="text-xs text-slate-500 leading-relaxed">
+                Salas de lectura silenciosa, consulta bibliográfica y terminales de investigación documental.
+              </p>
+            </div>
+            <a href="/search?q=biblioteca" class="mt-3 text-xs font-semibold text-[#01579B] hover:text-[#002244] flex items-center gap-1">
+              Consultar servicios &rarr;
+            </a>
+          </div>
+        </div>
+
+        <!-- Foto 2: Aulas -->
+        <div class="bg-white rounded-xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-md transition group flex flex-col">
+          <div class="relative h-44 overflow-hidden bg-slate-100">
+            <img 
+              src="/images/fondos/fondo4.jpg" 
+              alt="Aulas y Auditorios CURZAS" 
+              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              loading="lazy"
+            />
+            <span class="absolute top-2.5 left-2.5 bg-[#003366]/90 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded">
+              Académica
+            </span>
+          </div>
+          <div class="p-4 flex flex-col flex-grow justify-between">
+            <div>
+              <h3 class="font-bold text-sm text-[#003366] mb-1">Aulas y Espacios de Estudio</h3>
+              <p class="text-xs text-slate-500 leading-relaxed">
+                Aulas magnas y salones para el dictado de licenciaturas, tecnicaturas y profesorados.
+              </p>
+            </div>
+            <a href="/search?q=carrera" class="mt-3 text-xs font-semibold text-[#01579B] hover:text-[#002244] flex items-center gap-1">
+              Ver carreras y aulas &rarr;
+            </a>
+          </div>
+        </div>
+
+        <!-- Foto 3: Mural y Pasillo Estudiantil -->
+        <div class="bg-white rounded-xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-md transition group flex flex-col">
+          <div class="relative h-44 overflow-hidden bg-slate-100">
+            <img 
+              src="/images/fondos/fondo5.jpg" 
+              alt="Pasillo Central y Centro de Estudiantes" 
+              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              loading="lazy"
+            />
+            <span class="absolute top-2.5 left-2.5 bg-[#003366]/90 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded">
+              Comunidad
+            </span>
+          </div>
+          <div class="p-4 flex flex-col flex-grow justify-between">
+            <div>
+              <h3 class="font-bold text-sm text-[#003366] mb-1">Vida Estudiantil</h3>
+              <p class="text-xs text-slate-500 leading-relaxed">
+                Hall central con mural histórico, Centro de Estudiantes y Departamento de Alumnos.
+              </p>
+            </div>
+            <a href="/search?q=alumnos" class="mt-3 text-xs font-semibold text-[#01579B] hover:text-[#002244] flex items-center gap-1">
+              Trámites de alumnos &rarr;
+            </a>
+          </div>
+        </div>
+
+        <!-- Foto 4: Plano Vectorial de la Sede -->
+        <div class="bg-white rounded-xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-md transition group flex flex-col">
+          <div class="relative h-44 overflow-hidden bg-slate-50 flex items-center justify-center p-2 border-b border-slate-100">
+            <img 
+              src="/images/planoCurza.svg" 
+              alt="Plano Edilicio CURZAS" 
+              class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
+              loading="lazy"
+            />
+            <span class="absolute top-2.5 left-2.5 bg-[#F39200] text-slate-900 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded">
+              Plano Sede
+            </span>
+          </div>
+          <div class="p-4 flex flex-col flex-grow justify-between">
+            <div>
+              <h3 class="font-bold text-sm text-[#003366] mb-1">Mapa y Distribución Edilicia</h3>
+              <p class="text-xs text-slate-500 leading-relaxed">
+                Ubicación de aulas, laboratorios, biblioteca, administración y accesos en el campus Viedma.
+              </p>
+            </div>
+            <a href="/images/planoCurza.svg" target="_blank" rel="noopener noreferrer" class="mt-3 text-xs font-semibold text-[#01579B] hover:text-[#002244] flex items-center gap-1">
+              Abrir plano completo &rarr;
+            </a>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 </Layout>

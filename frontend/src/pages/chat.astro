@@ -23,8 +23,8 @@ import Layout from '../layouts/Layout.astro';
     <div id="chat-messages" class="flex-grow overflow-y-auto space-y-2.5 pr-2 pb-2 scroll-smooth">
       <!-- Mensaje Inicial del Asistente -->
       <div class="flex items-start gap-2.5">
-        <div class="w-6 h-6 rounded-full bg-[#003366] text-[#FFBC7D] flex items-center justify-center text-[10px] font-bold flex-shrink-0 shadow-sm mt-0.5 border border-[#002244]">
-          IA
+        <div class="w-6 h-6 rounded-full bg-white border border-slate-200 flex items-center justify-center flex-shrink-0 shadow-sm mt-0.5 overflow-hidden p-0.5">
+          <img src="/images/CURZAS.png" alt="IA" class="w-full h-full object-contain" />
         </div>
         <div class="bg-white border border-slate-200 rounded-xl rounded-tl-none px-3.5 py-2.5 max-w-3xl shadow-sm text-xs sm:text-sm text-slate-800 leading-snug">
           <p class="mb-2">¡Hola! Soy el asistente institucional del CURZAS (UNComa). Puedo orientarte sobre carreras, inscripciones, fechas de examen, normativas y vida estudiantil.</p>
@@ -221,8 +221,8 @@ import Layout from '../layouts/Layout.astro';
       }
 
       msgDiv.innerHTML = `
-        <div class="w-6 h-6 rounded-full bg-[#003366] text-[#FFBC7D] flex items-center justify-center text-[10px] font-bold flex-shrink-0 shadow-sm mt-0.5 border border-[#002244]">
-          IA
+        <div class="w-6 h-6 rounded-full bg-white border border-slate-200 flex items-center justify-center flex-shrink-0 shadow-sm mt-0.5 overflow-hidden p-0.5">
+          <img src="/images/CURZAS.png" alt="IA" class="w-full h-full object-contain" />
         </div>
         <div class="bg-white border border-slate-200 rounded-xl rounded-tl-none px-3.5 py-2.5 max-w-3xl shadow-sm text-xs sm:text-sm text-slate-800 leading-snug">
           ${formatAssistantContent(text)}
@@ -238,8 +238,8 @@ import Layout from '../layouts/Layout.astro';
       msgDiv.id = id;
       msgDiv.className = 'flex items-start gap-2.5';
       msgDiv.innerHTML = `
-        <div class="w-6 h-6 rounded-full bg-[#003366] text-[#FFBC7D] flex items-center justify-center text-[10px] font-bold flex-shrink-0 shadow-sm mt-0.5 border border-[#002244]">
-          IA
+        <div class="w-6 h-6 rounded-full bg-white border border-slate-200 flex items-center justify-center flex-shrink-0 shadow-sm mt-0.5 overflow-hidden p-0.5">
+          <img src="/images/CURZAS.png" alt="IA" class="w-full h-full object-contain" />
         </div>
         <div class="bg-white border border-slate-200 rounded-xl rounded-tl-none px-3.5 py-2 max-w-2xl shadow-sm text-xs sm:text-sm text-slate-500 flex items-center gap-2">
           <svg class="animate-spin h-3.5 w-3.5 text-[#01579B]" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
