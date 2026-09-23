@@ -20,14 +20,46 @@ MEILI_KEY = os.getenv("MEILISEARCH_MASTER_KEY", "meili_master_key_curza")
 BATCH_SIZE = int(os.getenv("BATCH_SIZE", "50"))
 
 def clean_html(raw_html: str) -> str:
-    """Elimina etiquetas HTML, scripts, estilos y normaliza espacios."""
+    """Elimina etiquetas HTML, scripts, estilos y preserva saltos de párrafo."""
     if not raw_html:
         return ""
     soup = BeautifulSoup(raw_html, "html.parser")
-    for script in soup(["script", "style"]):
+    for script in soup(["script", "style", "form", "input"]):
         script.decompose()
-    text = soup.get_text(separator=" ")
-    return " ".join(text.split())
+    text = soup.get_text(separator="\n\n", strip=True)
+    text = re.sub(r"\n{3,}", "\n\n", text)
+    return text
+
+def process_html_and_text(raw_html: str):
+    """Procesa el HTML crudo retornando (content_html, clean_text) con enlaces seguros."""
+    if not raw_html:
+        return "", ""
+    soup = BeautifulSoup(raw_html, "html.parser")
+    for tag in soup(["script", "style", "form", "input"]):
+        tag.decompose()
+
+    # Modernizar texto en los nodos de texto preservando atributos y URLs
+    for text_node in soup.find_all(string=True):
+        if text_node.parent and text_node.parent.name in ["script", "style"]:
+            continue
+        original = str(text_node)
+        updated = modernize_institutional_text(original)
+        if updated != original:
+            text_node.replace_with(updated)
+
+    for a in soup.find_all("a", href=True):
+        href = a["href"].strip()
+        if href.startswith("http"):
+            a["target"] = "_blank"
+            a["rel"] = "noopener noreferrer"
+
+    clean_html_str = str(soup).strip()
+    clean_text = soup.get_text(separator="\n\n", strip=True)
+    clean_text = re.sub(r"\n{3,}", "\n\n", clean_text)
+    clean_text = modernize_institutional_text(clean_text)
+
+    return clean_html_str, clean_text
+
 
 def modernize_institutional_text(text: str) -> str:
     """
@@ -115,14 +147,12 @@ def main():
         doc_int_id = int(raw_id) if item_type == "post" else int(raw_id) + 1_000_000
 
         title = item.get("title", {}).get("rendered", "")
-        clean_title = clean_html(title)
-        raw_content = item.get("content", {}).get("rendered", "")
-        clean_text = clean_html(raw_content)
-        link = item.get("link", "")
-
-        # Modernizar referencias históricas a CURZAS y UNComa
+        clean_title = BeautifulSoup(title, "html.parser").get_text(strip=True)
         clean_title = modernize_institutional_text(clean_title)
-        clean_text = modernize_institutional_text(clean_text)
+
+        raw_content = item.get("content", {}).get("rendered", "")
+        content_html, clean_text = process_html_and_text(raw_content)
+        link = item.get("link", "")
 
         if len(clean_text) < 40 and len(clean_title) < 5:
             continue
@@ -145,6 +175,7 @@ def main():
             "original_id": raw_id,
             "title": clean_title,
             "content": clean_text,
+            "content_html": content_html,
             "url": local_url,              # Enlace directo al contenido local del portal
             "original_url": link,          # Enlace histórico de origen
             "type": item_type,

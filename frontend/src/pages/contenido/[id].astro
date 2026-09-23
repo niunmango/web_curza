@@ -90,16 +90,20 @@ const isOld = doc?.date && ((Date.now() - new Date(doc.date).getTime()) > 365 * 
           )}
         </header>
 
-        <!-- Contenido principal -->
-        <div class="prose max-w-none text-slate-700 leading-relaxed text-sm sm:text-base space-y-4">
-          {paragraphs.length > 0 ? (
-            paragraphs.map((p: string) => (
-              <p class="whitespace-pre-line">{p}</p>
-            ))
-          ) : (
-            <p>{doc.content || 'Sin contenido adicional registrado para este documento institucional.'}</p>
-          )}
-        </div>
+        <!-- Contenido principal estructurado -->
+        {doc.content_html ? (
+          <div class="imported-content text-slate-700 leading-relaxed text-sm sm:text-base" set:html={doc.content_html} />
+        ) : (
+          <div class="prose max-w-none text-slate-700 leading-relaxed text-sm sm:text-base space-y-4">
+            {paragraphs.length > 0 ? (
+              paragraphs.map((p: string) => (
+                <p class="whitespace-pre-line">{p}</p>
+              ))
+            ) : (
+              <p>{doc.content || 'Sin contenido adicional registrado para este documento institucional.'}</p>
+            )}
+          </div>
+        )}
 
         <!-- Acciones e Información adicional -->
         <footer class="mt-12 pt-6 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -121,11 +125,22 @@ const isOld = doc?.date && ((Date.now() - new Date(doc.date).getTime()) > 365 * 
             </a>
           </div>
 
-          {doc.original_url && (
-            <div class="text-xs text-slate-400">
-              ID: <span class="font-mono">{doc.id}</span>
-            </div>
-          )}
+          <div class="flex items-center gap-3 text-xs text-slate-400">
+            {doc.original_url && (
+              <a 
+                href={doc.original_url} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                class="hover:text-[#003366] transition flex items-center gap-1"
+                title="Ver publicación en sitio original de origen"
+              >
+                <span>Fuente original</span>
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+              </a>
+            )}
+            <span>•</span>
+            <span>ID: <code class="font-mono">{doc.id}</code></span>
+          </div>
         </footer>
       </article>
     ) : (
@@ -139,7 +154,7 @@ const isOld = doc?.date && ((Date.now() - new Date(doc.date).getTime()) > 365 * 
         </p>
         <a 
           href="/search" 
-          class="px-5 py-2.5 bg-blue-700 hover:bg-blue-800 text-white text-sm font-semibold rounded-xl transition shadow-sm inline-block"
+          class="px-5 py-2.5 bg-[#003366] hover:bg-[#01579B] text-white text-sm font-semibold rounded-xl transition shadow-sm inline-block"
         >
           Ir al buscador institucional
         </a>
@@ -147,3 +162,261 @@ const isOld = doc?.date && ((Date.now() - new Date(doc.date).getTime()) > 365 * 
     )}
   </div>
 </Layout>
+
+<style is:global>
+  /* Estilos institucionales para contenido importado con HTML */
+  .imported-content {
+    font-family: inherit;
+    color: #334155;
+    line-height: 1.75;
+  }
+
+  /* Encabezados y títulos */
+  .imported-content h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #003366;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    line-height: 1.3;
+  }
+  .imported-content h2 {
+    font-size: 1.45rem;
+    font-weight: 700;
+    color: #003366;
+    margin-top: 1.75rem;
+    margin-bottom: 0.75rem;
+    line-height: 1.35;
+    border-bottom: 2px solid #E2E8F0;
+    padding-bottom: 0.35rem;
+  }
+  .imported-content h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #003366;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+  }
+  .imported-content h4,
+  .imported-content h5,
+  .imported-content h6 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-top: 1.25rem;
+    margin-bottom: 0.5rem;
+  }
+
+  /* Párrafos y tipografía */
+  .imported-content p {
+    margin-bottom: 1.25rem;
+    line-height: 1.75;
+    color: #334155;
+  }
+  .imported-content strong,
+  .imported-content b {
+    font-weight: 600;
+    color: #0f172a;
+  }
+  .imported-content em,
+  .imported-content i {
+    font-style: italic;
+  }
+
+  /* Listas ordenadas y desordenadas */
+  .imported-content ul {
+    list-style-type: disc;
+    margin-left: 1.5rem;
+    margin-bottom: 1.25rem;
+    padding-left: 0.5rem;
+  }
+  .imported-content ol {
+    list-style-type: decimal;
+    margin-left: 1.5rem;
+    margin-bottom: 1.25rem;
+    padding-left: 0.5rem;
+  }
+  .imported-content li {
+    margin-bottom: 0.45rem;
+    line-height: 1.65;
+    color: #334155;
+  }
+  .imported-content ul ul {
+    list-style-type: circle;
+    margin-top: 0.35rem;
+    margin-bottom: 0.35rem;
+  }
+  .imported-content ol ol {
+    list-style-type: lower-alpha;
+    margin-top: 0.35rem;
+    margin-bottom: 0.35rem;
+  }
+
+  /* Enlaces institucionales */
+  .imported-content a {
+    color: #01579B;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    font-weight: 500;
+    transition: color 0.15s ease;
+  }
+  .imported-content a:hover {
+    color: #002244;
+  }
+
+  /* Gutenberg File Block (.wp-block-file) para descargas */
+  .imported-content .wp-block-file {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    margin: 1.25rem 0;
+    background-color: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-left: 4px solid #003366;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+  }
+  .imported-content .wp-block-file a:first-child {
+    font-weight: 600;
+    color: #003366;
+    text-decoration: none;
+    flex: 1 1 200px;
+    word-break: break-word;
+  }
+  .imported-content .wp-block-file a:first-child:hover {
+    color: #01579B;
+    text-decoration: underline;
+  }
+  .imported-content .wp-block-file .wp-block-file__button {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1.15rem;
+    background-color: #003366;
+    color: #ffffff !important;
+    text-decoration: none !important;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    transition: background-color 0.15s ease;
+    white-space: nowrap;
+  }
+  .imported-content .wp-block-file .wp-block-file__button:hover {
+    background-color: #01579B;
+  }
+
+  /* Botones Gutenberg */
+  .imported-content .wp-block-button {
+    margin: 1.25rem 0;
+  }
+  .imported-content .wp-block-button__link {
+    display: inline-block;
+    padding: 0.625rem 1.25rem;
+    background-color: #003366;
+    color: #ffffff !important;
+    text-decoration: none !important;
+    font-weight: 600;
+    border-radius: 0.5rem;
+    transition: background-color 0.15s ease;
+  }
+  /* Gutenberg Multi-column layout (.wp-block-columns) */
+  .imported-content .wp-block-columns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin: 1.5rem 0;
+  }
+  .imported-content .wp-block-column {
+    flex: 1 1 280px;
+    min-width: 0;
+  }
+
+  /* Alineaciones de WordPress */
+  .imported-content .has-text-align-center {
+    text-align: center;
+  }
+  .imported-content .has-text-align-right {
+    text-align: right;
+  }
+  .imported-content .has-text-align-left {
+    text-align: left;
+  }
+
+  /* Imágenes y Figuras */
+  .imported-content figure {
+    margin: 1.5rem 0;
+  }
+  .imported-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+  .imported-content figcaption {
+    font-size: 0.8125rem;
+    color: #64748b;
+    margin-top: 0.5rem;
+    text-align: center;
+  }
+
+  /* Tablas responsivas */
+  .imported-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+    font-size: 0.875rem;
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .imported-content th,
+  .imported-content td {
+    padding: 0.75rem 1rem;
+    border: 1px solid #CBD5E1;
+    text-align: left;
+    vertical-align: top;
+  }
+  .imported-content th {
+    background-color: #003366;
+    color: #ffffff;
+    font-weight: 600;
+  }
+  .imported-content tr:nth-child(even) td {
+    background-color: #F8FAFC;
+  }
+  .imported-content tr:hover td {
+    background-color: #F1F5F9;
+  }
+
+  /* Citas / Blockquotes */
+  .imported-content blockquote {
+    border-left: 4px solid #003366;
+    padding: 0.75rem 1.25rem;
+    margin: 1.5rem 0;
+    font-style: italic;
+    color: #475569;
+    background-color: #F8FAFC;
+    border-radius: 0 0.5rem 0.5rem 0;
+  }
+  .imported-content blockquote p {
+    margin-bottom: 0;
+  }
+
+  /* Separadores */
+  .imported-content hr {
+    border: 0;
+    border-top: 1px solid #E2E8F0;
+    margin: 2rem 0;
+  }
+
+  /* Iframes / Multimedia */
+  .imported-content iframe {
+    max-width: 100%;
+    border-radius: 0.5rem;
+    margin: 1.5rem 0;
+  }
+</style>
