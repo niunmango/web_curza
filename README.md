@@ -25,13 +25,13 @@ El proyecto implementa una arquitectura desacoplada, modular y de alto rendimien
   │   Puerto 4321│       │  Puerto 8000 │       │  Puerto 7700 │       │  Puerto 1337 │
   └──────────────┘       └──────┬───────┘       └──────────────┘       └──────┬───────┘
                                 │                                             │
-                        ┌───────┴───────┐                             ┌───────┴───────┐
-                        ▼               ▼                             ▼               ▼
-                 ┌──────────────┐ ┌──────────────┐             ┌──────────────┐
-                 │ Qdrant DB    │ │ Ollama LLM   │             │ PostgreSQL 16│
-                 │ (Embeddings) │ │ (gemma4:12b) │             │ (Relacional) │
-                 │  Puerto 6333 │ │ (Externo)    │             │  Puerto 5432 │
-                 └──────────────┘ └──────────────┘             └──────────────┘
+                        ┌───────┴───────┐                                     ▼
+                        ▼               ▼                              ┌──────────────┐
+                 ┌──────────────┐ ┌──────────────┐                     │ PostgreSQL 16│
+                 │ Qdrant DB    │ │ Ollama LLM   │                     │ (Relacional) │
+                 │ (Embeddings) │ │ (gemma4:12b) │                     │  Puerto 5432 │
+                 │  Puerto 6333 │ │ (Externo)    │                     └──────────────┘
+                 └──────────────┘ └──────────────┘
 ```
 
 ### Componentes Principales
