@@ -157,8 +157,8 @@ services:
     restart: unless-stopped
     working_dir: /app
     environment:
-      SITE_URL: ${SITE_URL:-http://air.local:8888}
-      PUBLIC_SITE_URL: ${PUBLIC_SITE_URL:-${SITE_URL:-http://air.local:8888}}
+      SITE_URL: ${SITE_URL:-http://localhost:8888}
+      PUBLIC_SITE_URL: ${PUBLIC_SITE_URL:-${SITE_URL:-http://localhost:8888}}
       STRAPI_API_URL: http://strapi:1337
       MEILISEARCH_HOST: http://search:7700
       MEILISEARCH_SEARCH_KEY: ${MEILISEARCH_SEARCH_KEY:-meili_master_key_curza}

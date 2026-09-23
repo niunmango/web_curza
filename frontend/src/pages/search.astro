@@ -84,8 +84,7 @@ import Layout from '../layouts/Layout.astro';
         const res = await fetch('/api/search/indexes/curza_content/search', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer meili_master_key_curza'
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify({
             q: query,

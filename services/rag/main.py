@@ -5,7 +5,7 @@ from datetime import datetime
 from contextlib import asynccontextmanager
 from typing import List, Optional
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 import httpx
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams, PointStruct
@@ -73,7 +73,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="CURZAS RAG API", version="1.0", lifespan=lifespan)
 
 class ChatQuery(BaseModel):
-    prompt: str
+    prompt: str = Field(..., min_length=2, max_length=1500, description="Consulta del usuario (entre 2 y 1500 caracteres)")
 
 class IngestDocument(BaseModel):
     id: int
@@ -154,11 +154,15 @@ def update_dates(updates: List[PayloadUpdate]):
 @app.post("/api/rag/chat")
 async def chat_rag(query: ChatQuery):
     """Recupera contexto de Qdrant ponderando antigüedad y consulta a Ollama externo."""
+    clean_prompt = query.prompt.strip()
+    if not clean_prompt or len(clean_prompt) < 2:
+        raise HTTPException(status_code=400, detail="La consulta ingresada no es válida.")
+
     ensure_collection_exists(max_retries=2, delay=1.0)
     model = get_embedding_model()
     client = get_qdrant()
 
-    query_vector = list(model.embed([query.prompt]))[0].tolist()
+    query_vector = list(model.embed([clean_prompt]))[0].tolist()
 
     raw_hits = []
     try:
@@ -247,7 +251,7 @@ async def chat_rag(query: ChatQuery):
                     "model": OLLAMA_MODEL,
                     "messages": [
                         {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": query.prompt}
+                        {"role": "user", "content": clean_prompt}
                     ],
                     "temperature": 0.2,
                     "stream": False
@@ -260,7 +264,7 @@ async def chat_rag(query: ChatQuery):
                 endpoint = f"{OLLAMA_URL.rstrip('/')}/api/generate"
                 payload = {
                     "model": OLLAMA_MODEL,
-                    "prompt": query.prompt,
+                    "prompt": clean_prompt,
                     "system": system_prompt,
                     "stream": False
                 }

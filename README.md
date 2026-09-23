@@ -275,3 +275,58 @@ Para gestionar contenidos mediante interfaz gráfica web:
 - Accedé a: `${SITE_URL}/admin` (ejemplo: `https://www.curza.uncoma.edu.ar/admin`).
 - Si es la primera vez, el sistema te solicitará crear la cuenta inicial de administrador.
 - Permite crear colecciones de contenido personalizadas, redactar en editor enriquecido y subir imágenes a la biblioteca de medios.
+
+---
+
+## 🛡️ Guía de Hardening y Recomendaciones de Seguridad
+
+El portal implementa una arquitectura con múltiples capas de defensa para proteger la integridad, disponibilidad y confidencialidad de la información institucional. A continuación se detallan las medidas de hardening ya aplicadas en el código y las recomendaciones operativas para despliegues en producción:
+
+### 1. Aislamiento de Red y Contenedores (Docker / Podman)
+- **Topología de red cerrada (`curza-net`)**: Ningún microservicio interno (`postgres`, `strapi`, `curza_search`, `curza_qdrant`, `curza_rag_api`, `curza_web`) expone puertos directamente al host ni a la interfaz pública. Toda comunicación inter-servicio se realiza a través de la red privada interna bridge.
+- **Punto único de entrada (Single Gateway)**: El contenedor de Caddy (`curza_proxy`) es el único servicio con bind de puertos hacia el exterior (`80`/`443` en producción o `8888` en desarrollo).
+- **Ejecución Rootless / No-root**:
+  - En Podman, los contenedores se ejecutan en modo `rootless` por defecto del usuario del sistema.
+  - En producción con Docker, se recomienda asignar directivas `user: "1000:1000"` o usuarios dedicados no privilegiados en los contenedores.
+- **Límites de recursos (DoS Prevention)**: En entornos de producción, configurar límites de memoria y CPU en `docker-compose.yml` para evitar agotamiento de recursos del nodo anfitrión (ej. `deploy.resources.limits.memory: 2G`).
+- **Imágenes Base Ligeras y Parcheadas**: Se utilizan imágenes mínimas Alpine (`caddy:2.8-alpine`, `postgres:16-alpine`) y Debian Slim (`python:3.11-slim`, `node:20-slim`), reduciendo drásticamente la superficie de ataque y el conteo de vulnerabilidades.
+
+### 2. Pasarela Caddy (Gateway Inverso)
+- **Cabeceras Globales de Seguridad HTTP**:
+  - `X-Frame-Options: SAMEORIGIN`: Bloquea ataques de Clickjacking impidiendo que sitios externos incrusten el portal en `<iframe>`.
+  - `X-Content-Type-Options: nosniff`: Evita que navegadores interpreten archivos con MIME types incorrectos.
+  - `X-XSS-Protection: 1; mode=block`: Activa el filtro defensivo contra Cross-Site Scripting (XSS) en navegadores tradicionales.
+  - `Referrer-Policy: strict-origin-when-cross-origin`: Oculta parámetros sensibles en los referrers hacia dominios externos.
+  - `Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()`: Deshabilita el acceso a hardware y APIs sensibles del dispositivo cliente.
+  - `Server: (suprimido)`: Oculta la firma del software de servidor en todas las respuestas para evitar enumeración y fingerprinting.
+- **Restricción Estricta de Métodos y Endpoints**:
+  - **RAG API (`/api/rag/*`)**: Solo se expone públicamente `POST /api/rag/chat` y `GET /api/rag/health`. Cualquier otra ruta o método (como `POST /api/rag/ingest` o actualización de vectores) es bloqueada con `403 Forbidden`.
+  - **Meilisearch (`/api/search/*`)**: Solo se permite la consulta `POST /api/search/indexes/curza_content/search` y `POST /api/search/multi-search`. Endpoints destructivos (`DELETE /indexes`, `PUT`, administración de claves API) son bloqueados con `403 Forbidden`.
+  - **Inyección Upstream de Tokens**: Caddy inyecta automáticamente la cabecera `Authorization: Bearer <MASTER_KEY>` hacia Meilisearch en la red interna, evitando exponer tokens en el código frontend o en el navegador del usuario.
+- **HTTPS Automático con TLS 1.3**: En producción, Caddy negocia certificados automáticos con Let's Encrypt / ZeroSSL, forzando cifrado moderno y renovación desatendida.
+
+### 3. Servicio RAG y Base Vectorial (FastAPI + Qdrant)
+- **Validación de Entradas y Prevención de DoS**:
+  - Parámetro `prompt` auditado estrictamente con Pydantic: longitud mínima de 2 caracteres y máxima de 1500 caracteres (`Field(min_length=2, max_length=1500)`).
+  - Sanitización y `.strip()` de texto antes del procesamiento.
+  - Mitigación de sobrecarga de CPU por cálculo masivo de embeddings vectoriales.
+- **Aislamiento de la Ingesta de Datos**: Los endpoints de ingestión y recalculo de embeddings están desacoplados y solo deben invocarse desde tareas programadas (cron) o scripts administrativos dentro de la red interna.
+- **Telemetría Deshabilitada**: Qdrant corre con `QDRANT__TELEMETRY_DISABLED: true` y Meilisearch con `MEILI_NO_ANALYTICS: true`.
+
+### 4. Gestor de Contenidos Strapi v5 y PostgreSQL
+- **Gestión de Secretos en `.env`**:
+  - En producción, **nunca** utilizar los valores predeterminados. Generar claves criptográficas aleatorias de 32 bytes para cada variable:
+    ```bash
+    # Generar secretos seguros
+    openssl rand -base64 32
+    ```
+    Asignar claves únicas e independientes a: `JWT_SECRET`, `ADMIN_JWT_SECRET`, `API_TOKEN_SALT`, `TRANSFER_TOKEN_SALT`, `APP_KEYS` y `POSTGRES_PASSWORD`.
+- **Panel de Administración (`/admin`)**:
+  - Registrar la cuenta superadministradora con contraseña robusta (16+ caracteres, alfanumérica y símbolos).
+  - Deshabilitar el registro público de nuevos administradores una vez creada la cuenta del equipo responsable.
+  - Opcional en producción: restringir el acceso a `/admin` en Caddy por dirección IP institucional o mediante VPN.
+- **PostgreSQL**: La base de datos no está expuesta a internet; solo acepta conexiones autenticadas desde el contenedor de Strapi a través de la red privada `curza-net`.
+
+### 5. Frontend Astro
+- **Sin Credenciales en el Cliente**: Ninguna API key, token administrativo o contraseña se compila en el bundle de JavaScript que se envía al navegador del usuario.
+- **Renderizado Seguro**: Astro aplica escape automático de HTML contra inyecciones XSS en componentes de plantilla `.astro`.

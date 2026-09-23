@@ -1,24 +1,65 @@
 # Caddyfile para CURZAS UNComa
 # En desarrollo/pruebas: SITE_ADDRESS=:8888 (HTTP directo)
-# En producción: SITE_ADDRESS=web.curza.uncoma.edu.ar (HTTPS automático con Let's Encrypt / ZeroSSL)
+# En producción: SITE_ADDRESS=www.curza.uncoma.edu.ar (HTTPS automático con Let's Encrypt / ZeroSSL)
 
 {$SITE_ADDRESS::8888} {
     encode gzip zstd
+
+    # Cabeceras globales de seguridad (Hardening)
+    header {
+        # Prevención de ataques de Clickjacking
+        X-Frame-Options "SAMEORIGIN"
+        # Prevención de ataques basados en MIME-type sniffing
+        X-Content-Type-Options "nosniff"
+        # Filtro de protección XSS para navegadores compatibles
+        X-XSS-Protection "1; mode=block"
+        # Política de Referrer estricta y segura
+        Referrer-Policy "strict-origin-when-cross-origin"
+        # Restricción de permisos y APIs sensibles del cliente
+        Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+        # Ocultar la cabecera Server para no exponer versión ni software
+        -Server
+    }
 
     # Interfaz Web Astro (SSR / Estático)
     handle /_astro/* {
         reverse_proxy web:4321
     }
 
-    # Endpoint RAG & Chatbot
-    handle /api/rag/* {
+    # Endpoint RAG & Chatbot: Solo permitir chat y healthcheck públicamente
+    @rag_chat {
+        method POST
+        path /api/rag/chat
+    }
+    @rag_health {
+        method GET
+        path /api/rag/health
+    }
+    handle @rag_chat {
         reverse_proxy rag-api:8000
     }
+    handle @rag_health {
+        reverse_proxy rag-api:8000
+    }
+    # Bloquear ingesta o endpoints internos de RAG desde el exterior
+    handle /api/rag/* {
+        respond "Acceso no autorizado." 403
+    }
 
-    # Búsqueda Instantánea Meilisearch
-    handle /api/search/* {
+    # Búsqueda Instantánea Meilisearch: Solo permitir endpoints de consulta/búsqueda
+    @search_allowed {
+        method POST
+        path /api/search/indexes/curza_content/search /api/search/multi-search
+    }
+    handle @search_allowed {
         uri strip_prefix /api/search
-        reverse_proxy search:7700
+        reverse_proxy search:7700 {
+            header_up Authorization "Bearer {$MEILISEARCH_MASTER_KEY:meili_master_key_curza}"
+        }
+    }
+    # Bloquear cualquier otro acceso administrativo directo a Meilisearch desde el exterior
+    handle /api/search/* {
+        respond "Acceso denegado a endpoints administrativos de búsqueda." 403
     }
 
     # Panel de Administración CMS y API Strapi
