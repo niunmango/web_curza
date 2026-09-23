@@ -1,0 +1,247 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Asistente Virtual IA (RAG) - CURZA UNCo">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col h-[calc(100vh-14rem)] min-h-[550px]">
+    <!-- Header Chat -->
+    <div class="flex items-center justify-between pb-4 border-b border-gray-200 mb-4">
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="text-2xl font-bold text-gray-900">Asistente Virtual Institucional</h1>
+          <span class="text-xs bg-emerald-100 text-emerald-800 font-semibold px-2.5 py-0.5 rounded-full border border-emerald-300">
+            RAG Local CPU
+          </span>
+        </div>
+        <p class="text-xs text-gray-500 mt-1">
+          Respuestas fundamentadas en la base de conocimiento de CURZA indexada en Qdrant.
+        </p>
+      </div>
+
+      <button id="clear-chat" class="text-xs text-gray-400 hover:text-gray-600 transition px-2 py-1 rounded hover:bg-gray-100">
+        Limpiar conversación
+      </button>
+    </div>
+
+    <!-- Área de Mensajes -->
+    <div id="chat-messages" class="flex-grow overflow-y-auto space-y-4 pr-2 pb-4 scroll-smooth">
+      <!-- Mensaje Inicial del Asistente -->
+      <div class="flex items-start gap-3">
+        <div class="w-8 h-8 rounded-full bg-blue-900 text-white flex items-center justify-center text-xs font-bold flex-shrink-0 shadow-sm">
+          IA
+        </div>
+        <div class="bg-white border border-gray-200 rounded-2xl rounded-tl-none p-4 max-w-2xl shadow-sm text-sm text-gray-800 leading-relaxed">
+          ¡Hola! Soy el asistente institucional del CURZA (UNCo). Puedo orientarte sobre carreras, inscripciones, fechas de examen, normativas y vida estudiantil.
+          <div class="mt-3 pt-3 border-t border-gray-100 flex flex-wrap gap-2 text-xs">
+            <span class="text-gray-400">Preguntas sugeridas:</span>
+            <button class="suggest-btn text-blue-700 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded transition text-left">
+              ¿Qué carreras se dictan en CURZA?
+            </button>
+            <button class="suggest-btn text-blue-700 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded transition text-left">
+              ¿Cómo realizo trámites en Bedelía?
+            </button>
+            <button class="suggest-btn text-blue-700 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded transition text-left">
+              ¿Cuáles son los requisitos de ingreso?
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Input Box -->
+    <div class="pt-4 border-t border-gray-200">
+      <form id="chat-form" class="relative flex items-center">
+        <textarea 
+          id="chat-input"
+          rows="1"
+          placeholder="Escribí tu consulta institucional aquí..."
+          class="w-full resize-none rounded-xl border border-gray-300 pl-4 pr-24 py-3 text-sm focus:border-blue-600 focus:ring-2 focus:ring-blue-500 outline-none shadow-sm bg-white"
+          required
+        ></textarea>
+        <button 
+          type="submit" 
+          id="send-btn"
+          class="absolute right-2 px-4 py-2 bg-blue-800 hover:bg-blue-900 text-white font-medium rounded-lg text-sm transition shadow-sm flex items-center gap-1.5"
+        >
+          <span>Enviar</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+        </button>
+      </form>
+      <div class="text-[11px] text-gray-400 text-center mt-2">
+        La información se genera recuperando documentos de <code>curza_knowledge</code> en Qdrant Vector DB.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('chat-form') as HTMLFormElement;
+    const input = document.getElementById('chat-input') as HTMLTextAreaElement;
+    const messagesContainer = document.getElementById('chat-messages') as HTMLDivElement;
+    const sendBtn = document.getElementById('send-btn') as HTMLButtonElement;
+    const clearBtn = document.getElementById('clear-chat') as HTMLButtonElement;
+
+    // Sugerencias de botones
+    document.querySelectorAll('.suggest-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        input.value = (btn.textContent || '').trim();
+        form.dispatchEvent(new Event('submit'));
+      });
+    });
+
+    clearBtn?.addEventListener('click', () => {
+      window.location.reload();
+    });
+
+    // Enviar con Enter (sin shift)
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        form.dispatchEvent(new Event('submit'));
+      }
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const prompt = input.value.trim();
+      if (!prompt) return;
+
+      input.value = '';
+      input.disabled = true;
+      sendBtn.disabled = true;
+
+      // 1. Renderizar mensaje del usuario
+      appendUserMessage(prompt);
+      scrollToBottom();
+
+      // 2. Renderizar indicador de carga
+      const loadingId = appendLoadingMessage();
+      scrollToBottom();
+
+      try {
+        const res = await fetch('/api/rag/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt })
+        });
+
+        removeLoadingMessage(loadingId);
+
+        if (!res.ok) {
+          throw new Error(`Error en servicio RAG (${res.status})`);
+        }
+
+        const data = await res.json();
+        appendAssistantMessage(data.answer, data.sources || []);
+      } catch (err: any) {
+        removeLoadingMessage(loadingId);
+        appendErrorMessage(err.message || 'No se pudo comunicar con el servicio de IA.');
+      } finally {
+        input.disabled = false;
+        sendBtn.disabled = false;
+        input.focus();
+        scrollToBottom();
+      }
+    });
+
+    function appendUserMessage(text: string) {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'flex items-start justify-end gap-3';
+      msgDiv.innerHTML = `
+        <div class="bg-blue-800 text-white rounded-2xl rounded-tr-none p-4 max-w-2xl shadow-sm text-sm leading-relaxed whitespace-pre-wrap">
+          ${escapeHtml(text)}
+        </div>
+        <div class="w-8 h-8 rounded-full bg-slate-300 text-slate-700 flex items-center justify-center text-xs font-bold flex-shrink-0">
+          Tú
+        </div>
+      `;
+      messagesContainer.appendChild(msgDiv);
+    }
+
+    function appendAssistantMessage(text: string, sources: string[]) {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'flex items-start gap-3';
+
+      let sourcesHtml = '';
+      if (sources && sources.length > 0) {
+        const uniqueSources = Array.from(new Set(sources.filter(Boolean)));
+        if (uniqueSources.length > 0) {
+          sourcesHtml = `
+            <div class="mt-3 pt-3 border-t border-gray-100">
+              <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Documentos de referencia:</span>
+              <ul class="mt-1 space-y-1">
+                ${uniqueSources.map(s => {
+                  const isLocal = s.startsWith('/contenido/');
+                  const label = isLocal ? `Ver documento en el portal (${s.replace('/contenido/', '')})` : s;
+                  return `
+                    <li>
+                      <a href="${s}" class="text-xs text-blue-600 hover:underline flex items-center gap-1 truncate max-w-md">
+                        <svg class="w-3 h-3 text-blue-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        ${escapeHtml(label)}
+                      </a>
+                    </li>
+                  `;
+                }).join('')}
+              </ul>
+            </div>
+          `;
+        }
+      }
+
+      msgDiv.innerHTML = `
+        <div class="w-8 h-8 rounded-full bg-blue-900 text-white flex items-center justify-center text-xs font-bold flex-shrink-0 shadow-sm">
+          IA
+        </div>
+        <div class="bg-white border border-gray-200 rounded-2xl rounded-tl-none p-4 max-w-2xl shadow-sm text-sm text-gray-800 leading-relaxed whitespace-pre-wrap">
+          ${escapeHtml(text)}
+          ${sourcesHtml}
+        </div>
+      `;
+      messagesContainer.appendChild(msgDiv);
+    }
+
+    function appendLoadingMessage(): string {
+      const id = 'loading-' + Date.now();
+      const msgDiv = document.createElement('div');
+      msgDiv.id = id;
+      msgDiv.className = 'flex items-start gap-3';
+      msgDiv.innerHTML = `
+        <div class="w-8 h-8 rounded-full bg-blue-900 text-white flex items-center justify-center text-xs font-bold flex-shrink-0 shadow-sm">
+          IA
+        </div>
+        <div class="bg-white border border-gray-200 rounded-2xl rounded-tl-none p-4 max-w-2xl shadow-sm text-sm text-gray-500 flex items-center gap-2">
+          <svg class="animate-spin h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+          Consultando base vectorial y generando respuesta...
+        </div>
+      `;
+      messagesContainer.appendChild(msgDiv);
+      return id;
+    }
+
+    function removeLoadingMessage(id: string) {
+      const el = document.getElementById(id);
+      if (el) el.remove();
+    }
+
+    function appendErrorMessage(errorMsg: string) {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'flex items-start gap-3';
+      msgDiv.innerHTML = `
+        <div class="w-8 h-8 rounded-full bg-red-600 text-white flex items-center justify-center text-xs font-bold flex-shrink-0">
+          !
+        </div>
+        <div class="bg-red-50 border border-red-200 rounded-2xl rounded-tl-none p-4 max-w-2xl text-sm text-red-800 leading-relaxed">
+          ${escapeHtml(errorMsg)}
+        </div>
+      `;
+      messagesContainer.appendChild(msgDiv);
+    }
+
+    function scrollToBottom() {
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    function escapeHtml(str: string): string {
+      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+  </script>
+</Layout>

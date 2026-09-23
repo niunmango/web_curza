@@ -1,0 +1,174 @@
+version: "3.8"
+
+networks:
+  curza-net:
+    driver: bridge
+
+volumes:
+  pg_data:
+  strapi_uploads:
+  meili_data:
+  qdrant_data:
+  caddy_data:
+  caddy_config:
+
+services:
+  # ==============================================================================
+  # Reverse Proxy & SSL Automático (Caddy v2)
+  # Desarrollo/Pruebas: Puerto 8888 (HTTP)
+  # Producción: Puertos 80/443 con HTTPS automático
+  # ==============================================================================
+  proxy:
+    image: caddy:2.8.4-alpine
+    container_name: curza_proxy
+    restart: unless-stopped
+    ports:
+      - "${CADDY_PORT:-8888}:${CADDY_INTERNAL_PORT:-8888}"
+    environment:
+      - SITE_ADDRESS=${SITE_ADDRESS:-:8888}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - curza-net
+    depends_on:
+      - web
+      - strapi
+      - search
+      - rag-api
+
+  # ==============================================================================
+  # Base de Datos Relacional para Strapi (PostgreSQL 16)
+  # ==============================================================================
+  postgres:
+    image: postgres:16.4-alpine
+    container_name: curza_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-strapi}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-strapi_secure_pwd_curza_2026}
+      POSTGRES_DB: ${POSTGRES_DB:-curza_cms}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    networks:
+      - curza-net
+
+  # ==============================================================================
+  # CMS Headless: Strapi v5
+  # ==============================================================================
+  strapi:
+    build:
+      context: ./cms
+      dockerfile: Dockerfile
+    image: curza-strapi:1.0.0
+    container_name: curza_strapi
+    restart: unless-stopped
+    working_dir: /srv/app
+    environment:
+      DATABASE_CLIENT: postgres
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_NAME: ${POSTGRES_DB:-curza_cms}
+      DATABASE_USERNAME: ${POSTGRES_USER:-strapi}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD:-strapi_secure_pwd_curza_2026}
+      DATABASE_SSL: "false"
+      JWT_SECRET: ${JWT_SECRET:-super_secret_jwt_curza_unco_2026}
+      ADMIN_JWT_SECRET: ${ADMIN_JWT_SECRET:-super_secret_admin_jwt_curza_2026}
+      APP_KEYS: ${APP_KEYS:-curza_key1,curza_key2}
+      API_TOKEN_SALT: ${API_TOKEN_SALT:-salt_api_curza_2026}
+      TRANSFER_TOKEN_SALT: ${TRANSFER_TOKEN_SALT:-salt_transfer_curza_2026}
+      MEILISEARCH_HOST: http://search:7700
+      MEILISEARCH_API_KEY: ${MEILISEARCH_MASTER_KEY:-meili_master_key_curza}
+    volumes:
+      - ./cms:/srv/app
+      - /srv/app/node_modules
+      - strapi_uploads:/srv/app/public/uploads
+    networks:
+      - curza-net
+    depends_on:
+      - postgres
+
+  # ==============================================================================
+  # Motor de Búsqueda Instantánea (Meilisearch v1.10.0)
+  # ==============================================================================
+  search:
+    image: getmeili/meilisearch:v1.10.0
+    container_name: curza_search
+    restart: unless-stopped
+    environment:
+      MEILI_ENV: production
+      MEILI_MASTER_KEY: ${MEILISEARCH_MASTER_KEY:-meili_master_key_curza}
+      MEILI_NO_ANALYTICS: "true"
+    volumes:
+      - meili_data:/meili_data
+    networks:
+      - curza-net
+
+  # ==============================================================================
+  # Base de Datos Vectorial para RAG (Qdrant v1.11.0)
+  # ==============================================================================
+  vector-db:
+    image: qdrant/qdrant:v1.11.0
+    container_name: curza_qdrant
+    restart: unless-stopped
+    environment:
+      QDRANT__SERVICE__GRPC_PORT: 6334
+      QDRANT__SERVICE__HTTP_PORT: 6333
+      QDRANT__TELEMETRY_DISABLED: "true"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    networks:
+      - curza-net
+
+  # ==============================================================================
+  # Microservicio RAG & Embeddings en CPU (FastAPI + FastEmbed + Ollama)
+  # ==============================================================================
+  rag-api:
+    build:
+      context: ./services/rag
+      dockerfile: Dockerfile
+    image: curza-rag-api:1.0.0
+    container_name: curza_rag_api
+    restart: unless-stopped
+    working_dir: /app
+    environment:
+      QDRANT_HOST: vector-db
+      QDRANT_PORT: 6333
+      OLLAMA_EXTERNAL_URL: ${OLLAMA_EXTERNAL_URL:-https://ollama.curza.com.ar/v1}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-gemma4:12b}
+      EMBEDDING_MODEL: "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+    volumes:
+      - ./services/rag:/app
+    networks:
+      - curza-net
+    depends_on:
+      - vector-db
+
+  # ==============================================================================
+  # Frontend Público: Astro v4 en Modo Híbrido con Tailwind
+  # ==============================================================================
+  web:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: curza-web:1.0.0
+    container_name: curza_web
+    restart: unless-stopped
+    working_dir: /app
+    environment:
+      SITE_URL: ${SITE_URL:-http://air.local:8888}
+      PUBLIC_SITE_URL: ${PUBLIC_SITE_URL:-${SITE_URL:-http://air.local:8888}}
+      STRAPI_API_URL: http://strapi:1337
+      MEILISEARCH_HOST: http://search:7700
+      MEILISEARCH_SEARCH_KEY: ${MEILISEARCH_SEARCH_KEY:-meili_master_key_curza}
+      RAG_API_URL: http://rag-api:8000
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - curza-net
+    depends_on:
+      - strapi
+      - search
+      - rag-api

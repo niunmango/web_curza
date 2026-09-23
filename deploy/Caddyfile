@@ -1,0 +1,40 @@
+# Caddyfile para CURZA UNCo
+# En desarrollo/pruebas: SITE_ADDRESS=:8888 (HTTP directo)
+# En producción: SITE_ADDRESS=web.curza.uncoma.edu.ar (HTTPS automático con Let's Encrypt / ZeroSSL)
+
+{$SITE_ADDRESS::8888} {
+    encode gzip zstd
+
+    # Interfaz Web Astro (SSR / Estático)
+    handle /_astro/* {
+        reverse_proxy web:4321
+    }
+
+    # Endpoint RAG & Chatbot
+    handle /api/rag/* {
+        reverse_proxy rag-api:8000
+    }
+
+    # Búsqueda Instantánea Meilisearch
+    handle /api/search/* {
+        uri strip_prefix /api/search
+        reverse_proxy search:7700
+    }
+
+    # Panel de Administración CMS y API Strapi
+    handle /admin* {
+        reverse_proxy strapi:1337
+    }
+    handle /api/cms/* {
+        uri strip_prefix /api/cms
+        reverse_proxy strapi:1337
+    }
+    handle /uploads/* {
+        reverse_proxy strapi:1337
+    }
+
+    # Resto de solicitudes dirigidas al Frontend Astro
+    handle {
+        reverse_proxy web:4321
+    }
+}

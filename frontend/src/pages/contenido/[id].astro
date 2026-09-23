@@ -1,0 +1,132 @@
+---
+export const prerender = false;
+
+import Layout from '../../layouts/Layout.astro';
+
+const { id } = Astro.params;
+
+const meiliHost = process.env.MEILISEARCH_HOST || 'http://search:7700';
+const meiliKey = process.env.MEILISEARCH_SEARCH_KEY || 'meili_master_key_curza';
+
+let doc: any = null;
+let errorMsg = '';
+
+if (id) {
+  const possibleIds = [id, `post_${id}`, `page_${id}`];
+  for (const candidateId of possibleIds) {
+    try {
+      const res = await fetch(`${meiliHost}/indexes/curza_content/documents/${candidateId}`, {
+        headers: {
+          'Authorization': `Bearer ${meiliKey}`
+        }
+      });
+      if (res.ok) {
+        doc = await res.json();
+        break;
+      }
+    } catch (e: any) {
+      errorMsg = e.message;
+    }
+  }
+}
+
+const title = doc ? `${doc.title} - CURZA UNCo` : 'Documento no encontrado - CURZA UNCo';
+const paragraphs = doc?.content ? doc.content.split(/\n\s*\n/).filter((p: string) => p.trim().length > 0) : [];
+---
+
+<Layout title={title}>
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <!-- Breadcrumbs -->
+    <nav class="flex items-center gap-2 text-xs text-gray-500 mb-6">
+      <a href="/" class="hover:text-blue-900 transition">Inicio</a>
+      <span>/</span>
+      <a href="/search" class="hover:text-blue-900 transition">Búsqueda</a>
+      <span>/</span>
+      <span class="text-gray-800 font-medium truncate max-w-xs">{doc ? doc.title : 'Contenido'}</span>
+    </nav>
+
+    {doc ? (
+      <article class="bg-white rounded-2xl p-6 sm:p-10 border border-gray-200 shadow-sm">
+        <header class="mb-8 pb-6 border-b border-gray-100">
+          <div class="flex items-center gap-2 mb-3">
+            <span class={`text-xs px-2.5 py-1 rounded-full font-semibold border ${
+              doc.type === 'page' 
+                ? 'bg-blue-50 text-blue-700 border-blue-200' 
+                : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+            }`}>
+              {doc.type === 'page' ? 'Página Institucional' : 'Novedad / Noticia'}
+            </span>
+
+            {doc.date && (
+              <span class="text-xs text-gray-400">
+                Publicado el {new Date(doc.date).toLocaleDateString('es-AR', {
+                  day: 'numeric',
+                  month: 'long',
+                  year: 'numeric'
+                })}
+              </span>
+            )}
+          </div>
+
+          <h1 class="text-2xl sm:text-4xl font-extrabold text-gray-900 leading-tight">
+            {doc.title}
+          </h1>
+        </header>
+
+        <!-- Contenido principal -->
+        <div class="prose max-w-none text-gray-700 leading-relaxed text-base space-y-4">
+          {paragraphs.length > 0 ? (
+            paragraphs.map((p: string) => (
+              <p class="whitespace-pre-line">{p}</p>
+            ))
+          ) : (
+            <p>{doc.content || 'Sin contenido adicional registrado para este documento institucional.'}</p>
+          )}
+        </div>
+
+        <!-- Acciones e Información adicional -->
+        <footer class="mt-12 pt-6 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <a 
+              href="/search" 
+              class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold rounded-lg transition flex items-center gap-1.5"
+            >
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+              Volver a la búsqueda
+            </a>
+
+            <a 
+              href="/chat" 
+              class="px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold rounded-lg transition flex items-center gap-1.5 border border-blue-200"
+            >
+              <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+              Consultar con IA
+            </a>
+          </div>
+
+          {doc.original_url && (
+            <div class="text-xs text-gray-400">
+              ID: <span class="font-mono">{doc.id}</span>
+            </div>
+          )}
+        </footer>
+      </article>
+    ) : (
+      <div class="bg-white rounded-2xl p-10 border border-gray-200 text-center shadow-sm">
+        <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+        </div>
+        <h2 class="text-xl font-bold text-gray-900 mb-2">Contenido no encontrado</h2>
+        <p class="text-sm text-gray-500 mb-6 max-w-md mx-auto">
+          El documento solicitado con identificador <code>{id}</code> no existe o aún no ha sido sincronizado en el motor de búsqueda.
+        </p>
+        <a 
+          href="/search" 
+          class="px-5 py-2.5 bg-blue-700 hover:bg-blue-800 text-white text-sm font-semibold rounded-xl transition shadow-sm inline-block"
+        >
+          Ir al buscador institucional
+        </a>
+      </div>
+    )}
+  </div>
+</Layout>

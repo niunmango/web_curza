@@ -1,0 +1,26 @@
+{
+  "name": "curza-cms",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Strapi CMS Headless para CURZA UNCo",
+  "scripts": {
+    "develop": "strapi develop",
+    "start": "strapi start",
+    "build": "strapi build",
+    "strapi": "strapi"
+  },
+  "dependencies": {
+    "@strapi/plugin-users-permissions": "5.1.0",
+    "@strapi/strapi": "5.1.0",
+    "pg": "^8.13.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.30.6",
+    "styled-components": "^6.5.3"
+  },
+  "engines": {
+    "node": ">=18.0.0 <=22.x.x",
+    "npm": ">=6.0.0"
+  },
+  "license": "MIT"
+}
