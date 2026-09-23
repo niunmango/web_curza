@@ -1,0 +1,284 @@
+[
+  {
+    "type": "Autoridades",
+    "data": [
+      {
+        "id": "aut1",
+        "name": "Decanato | Secretaría de Decanato",
+        "code": "A1"
+      },
+      {
+        "id": "aut2",
+        "name": "Vicedecanato | Secretaría de Extensión y Bienestar",
+        "code": "A2"
+      },
+      {
+        "id": "aut3",
+        "name": "Secretaría de Ciencia y Técnica",
+        "code": "A3"
+      },
+      {
+        "id": "aut4",
+        "name": "Secretaría Académica",
+        "code": "A4"
+      }
+    ]
+  },
+  {
+    "type": "Sectores Administrativos",
+    "data": [
+      {
+        "id": "admin1",
+        "name": "Mesa de Entradas | Bedelía",
+        "code": "A"
+      },
+      {
+        "id": "admin2",
+        "name": "Dpto. Bienestar Estudiantil",
+        "code": "B"
+      },
+      {
+        "id": "admin3",
+        "name": "SOSUNC",
+        "code": "C"
+      },
+      {
+        "id": "admin4",
+        "name": "Dpto. Orientación Estudiantil",
+        "code": "D"
+      },
+      {
+        "id": "admin5",
+        "name": "Dpto. Alumnos",
+        "code": "E"
+      },
+      {
+        "id": "admin6",
+        "name": "Dirección de Administración",
+        "code": "F"
+      },
+      {
+        "id": "admin7",
+        "name": "Dpto. de Recursos Humanos",
+        "code": "G"
+      },
+      {
+        "id": "admin8",
+        "name": "Dpto. Docente",
+        "code": "H"
+      },
+      {
+        "id": "admin9",
+        "name": "Fotocopiadora",
+        "code": "G"
+      },
+      {
+        "id": "admin10",
+        "name": "Laboratorio",
+        "code": "J"
+      },
+      {
+        "id": "admin11",
+        "name": "Dpto. Extensión",
+        "code": "K"
+      },
+      {
+        "id": "admin12",
+        "name": "Informática",
+        "code": "L"
+      },
+      {
+        "id": "admin13",
+        "name": "Servicios Generales",
+        "code": "M"
+      },
+      {
+        "id": "admin14",
+        "name": "Dirección de Posgrado",
+        "code": "N"
+      },
+      {
+        "id": "admin15",
+        "name": "Publicaciones | Pilquen",
+        "code": "Ñ"
+      },
+      {
+        "id": "admin16",
+        "name": "CEMTED | Comunicación Institucional",
+        "code": "O"
+      },
+      {
+        "id": "admin17",
+        "name": "Biblioteca",
+        "code": "P"
+      },
+      {
+        "id": "admin18",
+        "name": "Centro de Salud",
+        "code": "Q"
+      }
+    ]
+  },
+  {
+    "type": "Departamentos",
+    "data": [
+      {
+        "id": "dpto1",
+        "name": "Lengua, Literatura y Comunicación",
+        "code": "D1",
+        "info": "",
+        "url": "lengua-comunicacion"
+      },
+      {
+        "id": "dpto3",
+        "name": "Psicopedagogía",
+        "code": "D3",
+        "info": "",
+        "url": "psicopedagogia"
+      },
+      {
+        "id": "dpto4",
+        "name": "Estudios Políticos",
+        "code": "D4",
+        "info": "",
+        "url": "estudios-politicos"
+      },
+      {
+        "id": "dpto5",
+        "name": "Gestión Agropecuaria",
+        "code": "D5",
+        "info": "",
+        "url": "gestion-agropecuaria"
+      },
+      {
+        "id": "dpto6",
+        "name": "Ciencia y Tecntología",
+        "code": "D6",
+        "info": "",
+        "url": "tecnologia"
+      },
+      {
+        "id": "dpto7",
+        "name": "Administración Pública",
+        "code": "D7",
+        "info": "",
+        "url": "admin-publica"
+      }
+    ]
+  },
+  {
+    "type": "Aulas",
+    "data": [
+      {
+        "id": "aula1",
+        "name": "Aula 1",
+        "code": "1"
+      },
+      {
+        "id": "aula2",
+        "name": "Aula 2",
+        "code": "2"
+      },
+      {
+        "id": "aula3",
+        "name": "Aula 3",
+        "code": "3"
+      },
+      {
+        "id": "aula4",
+        "name": "Aula 4",
+        "code": "4"
+      },
+      {
+        "id": "aula5",
+        "name": "Aula 5",
+        "code": "5"
+      },
+      {
+        "id": "aula6",
+        "name": "Aula 6",
+        "code": "6"
+      },
+      {
+        "id": "aula7",
+        "name": "Aula 7",
+        "code": "7"
+      },
+      {
+        "id": "aula8",
+        "name": "Aula 8",
+        "code": "8"
+      },
+      {
+        "id": "aula10",
+        "name": "Aula 10",
+        "code": "10"
+      },
+      {
+        "id": "aula11",
+        "name": "Aula 11",
+        "code": "11"
+      },
+      {
+        "id": "aula12",
+        "name": "Aula 12",
+        "code": "12"
+      },
+      {
+        "id": "aula21",
+        "name": "Aula 21",
+        "code": "21"
+      },
+      {
+        "id": "aula9",
+        "name": "Aula 9",
+        "code": "9"
+      }
+    ]
+  },
+  {
+    "type": "Salas",
+    "data": [
+      {
+        "id": "sala1",
+        "name": "Consejo Directivo | Aula Hibrida",
+        "code": "S1"
+      },
+      {
+        "id": "sala2",
+        "name": "Sala de Profesores",
+        "code": "S2"
+      },
+      {
+        "id": "sala3",
+        "name": "Espacio común | CODEMU",
+        "code": "S3"
+      },
+      {
+        "id": "sala4",
+        "name": "Centro de Estudiantes",
+        "code": "S4"
+      },
+      {
+        "id": "sala5",
+        "name": "Sala 2 Informática",
+        "code": "S5"
+      },
+      {
+        "id": "sala6",
+        "name": "Sala 1 Informática",
+        "code": "S6"
+      },
+      {
+        "id": "sala7",
+        "name": "Centro de simulación Clínica",
+        "code": "S7"
+      },
+      {
+        "id": "sala8",
+        "name": "Espacio compartido",
+        "code": "S8"
+      }
+    ]
+  }
+]

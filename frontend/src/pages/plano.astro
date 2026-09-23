@@ -1,11 +1,39 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import fs from 'node:fs';
+import path from 'node:path';
+
+// Cargar datos de lugares
+const placesFilePath = path.join(process.cwd(), 'public/plano_places_clean.json');
+let placesCategories: any[] = [];
+try {
+  const rawData = fs.readFileSync(placesFilePath, 'utf-8');
+  placesCategories = JSON.parse(rawData);
+} catch (e) {
+  placesCategories = [];
+}
+
+// Cargar el SVG oficial para renderizado inline directo
+const svgFilePath = path.join(process.cwd(), 'public/images/planoCurza.svg');
+let svgContent = '';
+try {
+  svgContent = fs.readFileSync(svgFilePath, 'utf-8');
+} catch (e) {
+  svgContent = '';
+}
 ---
 
 <Layout title="Plano Oficial del Campus - CURZAS UNComa">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-    <!-- Encabezado -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 pb-6 border-b border-slate-200">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Breadcrumbs -->
+    <nav class="flex items-center gap-2 text-xs text-slate-500 mb-4">
+      <a href="/" class="hover:text-[#003366] transition">Inicio</a>
+      <span>/</span>
+      <span class="text-slate-800 font-medium">Plano del Campus</span>
+    </nav>
+
+    <!-- Encabezado Institucional -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-6 border-b border-slate-200">
       <div>
         <div class="inline-block text-xs font-bold text-[#F39200] uppercase tracking-wider mb-1">
           Sede Viedma · Campus Universitario
@@ -13,24 +41,34 @@ import Layout from '../layouts/Layout.astro';
         <h1 class="text-2xl sm:text-3xl font-extrabold text-[#003366] tracking-tight">
           Plano y Distribución Edilicia CURZAS
         </h1>
-        <p class="text-xs sm:text-sm text-slate-500 mt-1 max-w-2xl">
-          Monseñor Esandi y Ayacucho, Viedma, Río Negro. Mapa de ubicación de aulas, laboratorios, biblioteca, departamentos y servicios estudiantiles.
+        <p class="text-xs sm:text-sm text-slate-600 mt-1 max-w-2xl leading-relaxed">
+          Monseñor Esandi y Ayacucho, Viedma. Mapa detallado de aulas, departamentos, laboratorios, autoridades y dependencias de atención estudiantil.
         </p>
       </div>
 
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-2 flex-wrap">
+        <button 
+          id="btn-toggle-view"
+          class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition shadow-sm flex items-center gap-1.5 border border-slate-200"
+          title="Alternar entre plano vectorial y render en imagen"
+        >
+          <svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+          <span id="toggle-view-text">Ver Render JPG</span>
+        </button>
+
         <a 
           href="/images/planoCurza.svg" 
           target="_blank" 
           rel="noopener noreferrer" 
-          class="px-4 py-2 bg-[#003366] hover:bg-[#01579B] text-white text-xs font-semibold rounded-lg transition shadow-sm flex items-center gap-1.5 border border-[#002244]"
+          class="px-3.5 py-2 bg-[#003366] hover:bg-[#01579B] text-white text-xs font-semibold rounded-lg transition shadow-sm flex items-center gap-1.5 border border-[#002244]"
         >
           <svg class="w-4 h-4 text-[#FFBC7D]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-          <span>Abrir SVG Completo</span>
+          <span>Abrir SVG</span>
         </a>
+
         <a 
           href="/images/planoCurza.svg" 
-          download="Plano_CURZAS.svg"
+          download="Plano_Oficial_CURZAS.svg"
           class="px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg transition shadow-sm border border-slate-200 flex items-center gap-1.5"
         >
           <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
@@ -39,45 +77,475 @@ import Layout from '../layouts/Layout.astro';
       </div>
     </div>
 
-    <!-- Contenedor del Mapa / Plano Vectorial -->
-    <div class="bg-white rounded-2xl p-3 sm:p-5 border border-slate-200 shadow-sm mb-8">
-      <div class="w-full h-[600px] sm:h-[750px] rounded-xl overflow-hidden bg-slate-50 border border-slate-100 flex items-center justify-center relative">
-        <object 
-          data="/images/planoCurza.svg" 
-          type="image/svg+xml" 
-          class="w-full h-full"
-          title="Plano Oficial CURZAS"
-        >
-          <img src="/images/planoCurza.svg" alt="Plano CURZAS" class="w-full h-full object-contain" />
-        </object>
+    <!-- Barra de Referencias Oficiales de Color -->
+    <div class="bg-white rounded-xl p-3 sm:p-4 border border-slate-200 shadow-sm mb-6">
+      <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+        Referencias de Colores del Plano Institucional:
       </div>
-      <div class="text-[11px] text-slate-400 text-center mt-2.5">
-        Podés interactuar, hacer zoom y moverte dentro del plano vectorial interactivo o abrirlo en pantalla completa.
+      <div class="flex flex-wrap items-center gap-3 sm:gap-4 text-xs">
+        <div class="flex items-center gap-2">
+          <span class="w-4 h-4 rounded-md bg-[#ED3237] border-2 border-[#800000] shadow-sm flex-shrink-0"></span>
+          <span class="font-semibold text-slate-800">Aulas (1 a 12, 21)</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="w-4 h-4 rounded-md bg-[#FFCC29] border-2 border-[#9E7400] shadow-sm flex-shrink-0"></span>
+          <span class="font-semibold text-slate-800">Departamentos</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="w-4 h-4 rounded-md bg-[#00A859] border-2 border-[#004D25] shadow-sm flex-shrink-0"></span>
+          <span class="font-semibold text-slate-800">Salas y Laboratorios</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="w-4 h-4 rounded-md bg-[#0071A1] border-2 border-[#002B40] shadow-sm flex-shrink-0"></span>
+          <span class="font-semibold text-slate-800">Autoridades y Gestión</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="w-4 h-4 rounded-md bg-[#D2D3D5] border-2 border-[#404040] shadow-sm flex-shrink-0"></span>
+          <span class="font-semibold text-slate-800">Sectores Administrativos</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="w-4 h-4 rounded-md bg-[#FFA216] border-2 border-[#8A4500] shadow-sm flex-shrink-0"></span>
+          <span class="font-semibold text-slate-800">Espacios Auxiliares</span>
+        </div>
       </div>
     </div>
 
-    <!-- Guía y Referencias de Espacios -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div class="bg-white rounded-xl p-5 border border-slate-200 border-t-4 border-t-[#003366] shadow-sm">
-        <h3 class="font-bold text-sm text-[#003366] mb-2">Aulas y Espacios de Docencia</h3>
-        <p class="text-xs text-slate-600 leading-relaxed">
-          Aulas comunes (1 a 12), Aula Magna, Auditorio, Gabinete de Informática y salas de postgrado ubicadas en las alas norte y central.
-        </p>
+    <!-- Estructura Principal: Mapa + Directorio Lateral -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <!-- Visor del Plano (Columna Izquierda / Central) -->
+      <div class="lg:col-span-8 bg-white rounded-2xl p-3 sm:p-5 border border-slate-200 shadow-sm relative">
+        <!-- Barra de Control de Zoom / Herramientas -->
+        <div class="flex items-center justify-between gap-2 mb-3 pb-2 border-b border-slate-100 flex-wrap">
+          <div class="text-xs font-semibold text-slate-600 flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span id="current-view-label">Plano Vectorial Oficial con Colores y Bordes</span>
+          </div>
+
+          <div class="flex items-center gap-1">
+            <button 
+              id="zoom-in" 
+              class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm flex items-center justify-center transition"
+              title="Acercar mapa (+)"
+            >
+              +
+            </button>
+            <button 
+              id="zoom-out" 
+              class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm flex items-center justify-center transition"
+              title="Alejar mapa (-)"
+            >
+              &minus;
+            </button>
+            <button 
+              id="zoom-reset" 
+              class="px-2.5 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-xs flex items-center justify-center transition"
+              title="Restablecer tamaño original"
+            >
+              100%
+            </button>
+          </div>
+        </div>
+
+        <!-- Área de Visualización del Mapa -->
+        <div id="map-viewport" class="w-full h-[520px] sm:h-[680px] rounded-xl overflow-auto bg-slate-50 border border-slate-200/80 flex items-center justify-center relative select-none">
+          <!-- Vista Vectorial SVG -->
+          <div id="plano-svg-wrapper" class="w-full h-full min-w-[700px] min-h-[700px] flex items-center justify-center p-2" set:html={svgContent} />
+
+          <!-- Vista Imagen JPG (Alternativa oculta por defecto) -->
+          <div id="plano-img-wrapper" class="hidden w-full h-full overflow-auto p-2">
+            <img 
+              src="/images/planoCurza.jpg" 
+              alt="Plano Edilicio Completo CURZAS" 
+              class="max-w-none w-auto h-full object-contain mx-auto"
+            />
+          </div>
+
+          <!-- Tooltip flotante al pasar el mouse por encima de un aula / sector -->
+          <div 
+            id="map-tooltip" 
+            class="hidden absolute z-30 pointer-events-none px-3 py-1.5 rounded-lg bg-[#002244] text-white text-xs font-semibold shadow-xl border border-white/20 transition-opacity"
+          >
+            <span id="tooltip-text">Lugar</span>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between text-[11px] text-slate-400 mt-3 flex-wrap gap-2">
+          <span>💡 Pasá el cursor sobre cualquier aula o sector para ver su denominación, o hacé clic para seleccionarla.</span>
+          <span>Podés hacer zoom con los botones o la rueda del ratón.</span>
+        </div>
       </div>
 
-      <div class="bg-white rounded-xl p-5 border border-slate-200 border-t-4 border-t-[#F39200] shadow-sm">
-        <h3 class="font-bold text-sm text-[#003366] mb-2">Biblioteca y Estudio</h3>
-        <p class="text-xs text-slate-600 leading-relaxed">
-          Biblioteca Central y Regional del CURZAS, salas de lectura silenciosa, hemeroteca y préstamos de material bibliográfico.
-        </p>
-      </div>
+      <!-- Directorio y Búsqueda de Lugares (Columna Derecha) -->
+      <div class="lg:col-span-4 bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm sticky top-20">
+        <div class="pb-3 border-b border-slate-100 mb-3">
+          <h2 class="text-base font-bold text-[#003366] flex items-center gap-2">
+            <svg class="w-4 h-4 text-[#F39200]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+            Directorio de Espacios
+          </h2>
+          <p class="text-xs text-slate-500 mt-0.5">
+            Buscá un aula, secretaría o departamento para ubicarlo en el mapa:
+          </p>
 
-      <div class="bg-white rounded-xl p-5 border border-slate-200 border-t-4 border-t-[#003366] shadow-sm">
-        <h3 class="font-bold text-sm text-[#003366] mb-2">Administración y Estudiantes</h3>
-        <p class="text-xs text-slate-600 leading-relaxed">
-          Departamento de Alumnos, Bedelía, Decanato, Secretaría Académica, Centro de Estudiantes y buffet/comedor universitario.
-        </p>
+          <!-- Input de Búsqueda -->
+          <div class="relative mt-3">
+            <input 
+              type="text" 
+              id="search-places-input" 
+              placeholder="Ej: Aula 3, Alumnos, Bedelía, Decanato..." 
+              class="w-full pl-8 pr-8 py-2 text-xs rounded-lg border border-slate-300 focus:border-[#F39200] focus:ring-1 focus:ring-[#F39200] outline-none shadow-inner"
+            />
+            <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            <button id="clear-search-btn" class="hidden absolute right-2.5 top-2 text-slate-400 hover:text-slate-600 text-xs">
+              ✕
+            </button>
+          </div>
+        </div>
+
+        <!-- Lista de Lugares Agrupados -->
+        <div id="places-container" class="space-y-4 max-h-[560px] overflow-y-auto pr-1">
+          {placesCategories.map((cat: any) => {
+            const getBadgeColor = (type: string) => {
+              if (type === 'Aulas') return 'bg-[#ED3237] text-white border-[#800000]';
+              if (type === 'Departamentos') return 'bg-[#FFCC29] text-slate-900 border-[#9E7400]';
+              if (type === 'Salas') return 'bg-[#00A859] text-white border-[#004D25]';
+              if (type === 'Autoridades') return 'bg-[#0071A1] text-white border-[#002B40]';
+              return 'bg-slate-200 text-slate-800 border-slate-300';
+            };
+
+            return (
+              <div class="places-category-group">
+                <div class="flex items-center justify-between text-xs font-bold text-[#003366] mb-1.5 uppercase tracking-wider pb-1 border-b border-slate-100">
+                  <span>{cat.type}</span>
+                  <span class="text-[10px] text-slate-400 font-normal">({cat.data.length})</span>
+                </div>
+                <ul class="space-y-1">
+                  {cat.data.map((place: any) => (
+                    <li 
+                      class="place-item p-1.5 rounded-lg hover:bg-slate-100 transition cursor-pointer flex items-center justify-between gap-2 border border-transparent hover:border-slate-200 text-xs"
+                      data-id={place.id}
+                      data-name={place.name}
+                      data-code={place.code}
+                      data-type={cat.type}
+                    >
+                      <div class="flex items-center gap-2 truncate">
+                        <span class={`text-[10px] font-extrabold px-1.5 py-0.5 rounded border ${getBadgeColor(cat.type)} flex-shrink-0 min-w-[24px] text-center`}>
+                          {place.code}
+                        </span>
+                        <span class="text-slate-700 font-medium truncate">{place.name}</span>
+                      </div>
+                      <svg class="w-3.5 h-3.5 text-slate-400 flex-shrink-0 opacity-0 place-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   </div>
 </Layout>
+
+<style is:global>
+  /* ESTILOS Y BORDES OFICIALES PARA EL PLANO SVG */
+  #plano-svg-wrapper svg {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
+    transform-origin: center center;
+    transition: transform 0.15s ease-out;
+    display: block;
+  }
+
+  /* Espacios generales con bordes bien definidos */
+  #plano-svg-wrapper path.place {
+    stroke: #1a1a1a !important;
+    stroke-width: 160px !important;
+    stroke-linejoin: round !important;
+    stroke-linecap: round !important;
+    cursor: pointer !important;
+    transition: fill 0.15s ease, stroke 0.15s ease, stroke-width 0.15s ease;
+  }
+
+  /* Aulas: Rojo Institucional (#ED3237) con borde oscuro */
+  #plano-svg-wrapper path.aula {
+    fill: #ED3237 !important;
+    stroke: #800000 !important;
+    stroke-width: 220px !important;
+  }
+  #plano-svg-wrapper path.aula:hover,
+  #plano-svg-wrapper path.aula.active-room {
+    fill: #FF5A5F !important;
+    stroke: #000000 !important;
+    stroke-width: 380px !important;
+  }
+
+  /* Departamentos: Amarillo (#FFCC29) con borde dorado */
+  #plano-svg-wrapper path.dpto {
+    fill: #FFCC29 !important;
+    stroke: #9E7400 !important;
+    stroke-width: 200px !important;
+  }
+  #plano-svg-wrapper path.dpto:hover,
+  #plano-svg-wrapper path.dpto.active-room {
+    fill: #FFE37B !important;
+    stroke: #000000 !important;
+    stroke-width: 360px !important;
+  }
+
+  /* Salas y Laboratorios: Verde (#00A859) con borde oscuro */
+  #plano-svg-wrapper path.sala {
+    fill: #00A859 !important;
+    stroke: #004D25 !important;
+    stroke-width: 200px !important;
+  }
+  #plano-svg-wrapper path.sala:hover,
+  #plano-svg-wrapper path.sala.active-room {
+    fill: #00D170 !important;
+    stroke: #000000 !important;
+    stroke-width: 360px !important;
+  }
+
+  /* Autoridades: Azul UNComa (#0071A1) con borde oscuro */
+  #plano-svg-wrapper path.aut {
+    fill: #0071A1 !important;
+    stroke: #002B40 !important;
+    stroke-width: 200px !important;
+  }
+  #plano-svg-wrapper path.aut:hover,
+  #plano-svg-wrapper path.aut.active-room {
+    fill: #008DC9 !important;
+    stroke: #000000 !important;
+    stroke-width: 360px !important;
+  }
+
+  /* Administración: Gris claro (#D2D3D5) con borde visible */
+  #plano-svg-wrapper path.admin {
+    fill: #D2D3D5 !important;
+    stroke: #333333 !important;
+    stroke-width: 180px !important;
+  }
+  #plano-svg-wrapper path.admin:hover,
+  #plano-svg-wrapper path.admin.active-room {
+    fill: #E8E9EB !important;
+    stroke: #000000 !important;
+    stroke-width: 340px !important;
+  }
+
+  /* Auxiliares: Naranja (#FFA216) */
+  #plano-svg-wrapper path.aux {
+    fill: #FFA216 !important;
+    stroke: #8A4500 !important;
+    stroke-width: 180px !important;
+  }
+  #plano-svg-wrapper path.aux:hover,
+  #plano-svg-wrapper path.aux.active-room {
+    fill: #FFBC52 !important;
+    stroke: #000000 !important;
+    stroke-width: 340px !important;
+  }
+
+  /* Elemento resaltado en la lista */
+  .place-item.selected {
+    background-color: #F0F5FA !important;
+    border-color: #01579B !important;
+  }
+  .place-item.selected .place-arrow {
+    opacity: 1 !important;
+    color: #01579B !important;
+  }
+</style>
+
+<script>
+  // Interactividad del Plano, Zoom, Tooltips y Sincronización con Directorio
+  let currentZoom = 1;
+  const svgWrapper = document.getElementById('plano-svg-wrapper');
+  const svgElem = svgWrapper?.querySelector('svg');
+  const viewport = document.getElementById('map-viewport');
+  const tooltip = document.getElementById('map-tooltip');
+  const tooltipText = document.getElementById('tooltip-text');
+  const searchInput = document.getElementById('search-places-input') as HTMLInputElement;
+  const clearSearchBtn = document.getElementById('clear-search-btn');
+  const placeItems = document.querySelectorAll('.place-item');
+
+  function updateZoom(newZoom: number) {
+    currentZoom = Math.max(0.6, Math.min(3.5, newZoom));
+    if (svgElem) {
+      svgElem.style.transform = `scale(${currentZoom})`;
+    }
+    const resetBtn = document.getElementById('zoom-reset');
+    if (resetBtn) resetBtn.textContent = `${Math.round(currentZoom * 100)}%`;
+  }
+
+  document.getElementById('zoom-in')?.addEventListener('click', () => updateZoom(currentZoom + 0.25));
+  document.getElementById('zoom-out')?.addEventListener('click', () => updateZoom(currentZoom - 0.25));
+  document.getElementById('zoom-reset')?.addEventListener('click', () => updateZoom(1));
+
+  // Zoom con rueda del ratón
+  viewport?.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    if (e.deltaY < 0) {
+      updateZoom(currentZoom + 0.15);
+    } else {
+      updateZoom(currentZoom - 0.15);
+    }
+  }, { passive: false });
+
+  // Alternar vista entre SVG Vectorial y JPG Render
+  const toggleBtn = document.getElementById('btn-toggle-view');
+  const toggleText = document.getElementById('toggle-view-text');
+  const currentViewLabel = document.getElementById('current-view-label');
+  const imgWrapper = document.getElementById('plano-img-wrapper');
+  let showingJpg = false;
+
+  toggleBtn?.addEventListener('click', () => {
+    showingJpg = !showingJpg;
+    if (showingJpg) {
+      svgWrapper?.classList.add('hidden');
+      imgWrapper?.classList.remove('hidden');
+      if (toggleText) toggleText.textContent = 'Ver SVG Vectorial';
+      if (currentViewLabel) currentViewLabel.textContent = 'Render Gráfico HD (JPG)';
+    } else {
+      svgWrapper?.classList.remove('hidden');
+      imgWrapper?.classList.add('hidden');
+      if (toggleText) toggleText.textContent = 'Ver Render JPG';
+      if (currentViewLabel) currentViewLabel.textContent = 'Plano Vectorial Oficial con Colores y Bordes';
+    }
+  });
+
+  // Mapa de ID -> Elemento LI de la lista
+  const idToLiMap = new Map<string, HTMLElement>();
+  placeItems.forEach(item => {
+    const pId = item.getAttribute('data-id');
+    if (pId) idToLiMap.set(pId, item as HTMLElement);
+  });
+
+  // Vincular eventos en los paths del SVG
+  if (svgElem) {
+    const paths = svgElem.querySelectorAll('path.place, path[id^="aula"], path[id^="admin"], path[id^="sala"], path[id^="dpto"], path[id^="aut"]');
+    paths.forEach(p => {
+      p.addEventListener('mouseenter', (e: any) => {
+        const pId = p.id;
+        const li = idToLiMap.get(pId);
+        const name = li ? li.getAttribute('data-name') : pId;
+        const code = li ? li.getAttribute('data-code') : '';
+        
+        // Mostrar Tooltip
+        if (tooltip && tooltipText && viewport) {
+          tooltipText.textContent = code ? `${code} - ${name}` : name || pId;
+          tooltip.classList.remove('hidden');
+          const rect = viewport.getBoundingClientRect();
+          tooltip.style.left = `${e.clientX - rect.left + 15}px`;
+          tooltip.style.top = `${e.clientY - rect.top + 15}px`;
+        }
+
+        // Resaltar en la lista
+        if (li) {
+          li.classList.add('selected');
+          li.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      });
+
+      p.addEventListener('mousemove', (e: any) => {
+        if (tooltip && viewport) {
+          const rect = viewport.getBoundingClientRect();
+          tooltip.style.left = `${e.clientX - rect.left + 15}px`;
+          tooltip.style.top = `${e.clientY - rect.top + 15}px`;
+        }
+      });
+
+      p.addEventListener('mouseleave', () => {
+        if (tooltip) tooltip.classList.add('hidden');
+        const pId = p.id;
+        const li = idToLiMap.get(pId);
+        if (li) li.classList.remove('selected');
+      });
+
+      p.addEventListener('click', () => {
+        const pId = p.id;
+        const li = idToLiMap.get(pId);
+        if (li) {
+          li.classList.add('selected');
+          li.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      });
+    });
+  }
+
+  // Vincular eventos desde la lista lateral hacia el SVG
+  placeItems.forEach(item => {
+    const pId = item.getAttribute('data-id');
+    if (!pId) return;
+
+    item.addEventListener('mouseenter', () => {
+      const pathElem = svgElem?.querySelector(`path#${pId}`);
+      if (pathElem) {
+        pathElem.classList.add('active-room');
+      }
+    });
+
+    item.addEventListener('mouseleave', () => {
+      const pathElem = svgElem?.querySelector(`path#${pId}`);
+      if (pathElem) {
+        pathElem.classList.remove('active-room');
+      }
+    });
+
+    item.addEventListener('click', () => {
+      // Limpiar anteriores
+      svgElem?.querySelectorAll('.active-room').forEach(el => el.classList.remove('active-room'));
+      placeItems.forEach(i => i.classList.remove('selected'));
+
+      item.classList.add('selected');
+      const pathElem = svgElem?.querySelector(`path#${pId}`) as SVGPathElement;
+      if (pathElem) {
+        pathElem.classList.add('active-room');
+        // Aumentar zoom si está lejos
+        if (currentZoom < 1.3) {
+          updateZoom(1.5);
+        }
+      }
+    });
+  });
+
+  // Búsqueda en vivo de lugares
+  searchInput?.addEventListener('input', () => {
+    const query = searchInput.value.toLowerCase().trim();
+    if (clearSearchBtn) {
+      if (query.length > 0) clearSearchBtn.classList.remove('hidden');
+      else clearSearchBtn.classList.add('hidden');
+    }
+
+    let matchCount = 0;
+    document.querySelectorAll('.places-category-group').forEach(group => {
+      let groupHasMatch = false;
+      const items = group.querySelectorAll('.place-item');
+      items.forEach((item: any) => {
+        const name = (item.getAttribute('data-name') || '').toLowerCase();
+        const code = (item.getAttribute('data-code') || '').toLowerCase();
+        if (name.includes(query) || code.includes(query)) {
+          item.classList.remove('hidden');
+          groupHasMatch = true;
+          matchCount++;
+        } else {
+          item.classList.add('hidden');
+        }
+      });
+
+      if (groupHasMatch || query === '') {
+        (group as HTMLElement).classList.remove('hidden');
+      } else {
+        (group as HTMLElement).classList.add('hidden');
+      }
+    });
+  });
+
+  clearSearchBtn?.addEventListener('click', () => {
+    if (searchInput) {
+      searchInput.value = '';
+      searchInput.dispatchEvent(new Event('input'));
+      searchInput.focus();
+    }
+  });
+</script>

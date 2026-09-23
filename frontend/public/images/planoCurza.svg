@@ -526,6 +526,62 @@
     .str7 {stroke:#00A859;stroke-width:141.11;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:22.9256}
     .str4 {stroke:#0071A1;stroke-width:141.11;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:22.9256}
     .str0 {stroke:#62AFCE;stroke-width:13.23;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:22.9256}
+    /* Estilos Oficiales de Espacios y Aulas CURZAS */
+    path.place, .place {
+      stroke: #1a1a1a !important;
+      stroke-width: 140px !important;
+      stroke-linejoin: round !important;
+      stroke-linecap: round !important;
+      cursor: pointer;
+    }
+    path.aula, .aula {
+      fill: #ED3237 !important;
+      stroke: #9E0004 !important;
+      stroke-width: 180px !important;
+    }
+    path.aula:hover, .aula:hover {
+      fill: #FF5A5F !important;
+    }
+    path.admin, .admin {
+      fill: #D2D3D5 !important;
+      stroke: #4D4D4D !important;
+      stroke-width: 150px !important;
+    }
+    path.admin:hover, .admin:hover {
+      fill: #E6E7E9 !important;
+    }
+    path.aut, .aut {
+      fill: #0071A1 !important;
+      stroke: #003852 !important;
+      stroke-width: 160px !important;
+    }
+    path.aut:hover, .aut:hover {
+      fill: #008DC9 !important;
+    }
+    path.sala, .sala {
+      fill: #00A859 !important;
+      stroke: #00592E !important;
+      stroke-width: 160px !important;
+    }
+    path.sala:hover, .sala:hover {
+      fill: #00D170 !important;
+    }
+    path.dpto, .dpto {
+      fill: #FFCC29 !important;
+      stroke: #B38600 !important;
+      stroke-width: 160px !important;
+    }
+    path.dpto:hover, .dpto:hover {
+      fill: #FFE37B !important;
+    }
+    path.aux, .aux {
+      fill: #FFA216 !important;
+      stroke: #B35E00 !important;
+      stroke-width: 160px !important;
+    }
+    path.aux:hover, .aux:hover {
+      fill: #FFBC52 !important;
+    }
     .fil2 {fill:none}
     .fil1 {fill:#FEFEFE}
     .fil13 {fill:#D2D3D5}
