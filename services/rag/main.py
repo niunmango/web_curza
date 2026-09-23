@@ -263,7 +263,7 @@ async def chat_rag(query: ChatQuery):
                                 {"role": "user", "content": clean_prompt}
                             ],
                             "temperature": 0.2,
-                            "max_tokens": 400,
+                            "max_tokens": 650,
                             "reasoning_effort": "none",
                             "stream": True
                         }
@@ -293,7 +293,7 @@ async def chat_rag(query: ChatQuery):
                             "system": system_prompt,
                             "stream": True,
                             "options": {
-                                "num_predict": 400,
+                                "num_predict": 650,
                                 "temperature": 0.2
                             }
                         }
@@ -342,7 +342,7 @@ async def chat_rag(query: ChatQuery):
                         {"role": "user", "content": clean_prompt}
                     ],
                     "temperature": 0.2,
-                    "max_tokens": 400,
+                    "max_tokens": 650,
                     "reasoning_effort": "none",
                     "stream": False
                 }
@@ -358,7 +358,7 @@ async def chat_rag(query: ChatQuery):
                     "system": system_prompt,
                     "stream": False,
                     "options": {
-                        "num_predict": 400,
+                        "num_predict": 650,
                         "temperature": 0.2
                     }
                 }
