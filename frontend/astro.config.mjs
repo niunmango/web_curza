@@ -11,6 +11,9 @@ export default defineConfig({
   adapter: node({
     mode: 'standalone',
   }),
+  devToolbar: {
+    enabled: false,
+  },
   integrations: [tailwind()],
   server: {
     host: '0.0.0.0',
