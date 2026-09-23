@@ -18,38 +18,69 @@ const {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title}</title>
+    <!-- Google Fonts Poppins (Tipografía Institucional UNComa) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   </head>
-  <body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col font-sans">
-    <!-- Header / Navbar -->
-    <header class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+  <body class="bg-[#F8FAFC] text-[#313131] min-h-screen flex flex-col font-sans antialiased">
+    <!-- Franja Superior Institucional UNComa -->
+    <div class="bg-[#002B54] text-white text-[11px] py-1.5 px-4 sm:px-6 lg:px-8 border-b border-[#01579B]/30">
+      <div class="max-w-7xl mx-auto flex justify-between items-center">
+        <div class="flex items-center gap-2">
+          <span class="font-bold tracking-wider uppercase text-[#FFBC7D]">UNComa</span>
+          <span class="text-white/30">|</span>
+          <span class="text-slate-200 hidden sm:inline font-normal">Universidad Nacional del Comahue · República Argentina</span>
+        </div>
+        <div class="flex items-center gap-4 text-slate-300">
+          <a href="https://uncoma.edu.ar" target="_blank" rel="noopener noreferrer" class="hover:text-white transition flex items-center gap-1 font-medium">
+            <span>uncoma.edu.ar</span>
+            <svg class="w-3 h-3 text-[#FFBC7D]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Header Principal / Navbar -->
+    <header class="bg-white border-b border-slate-200/80 sticky top-0 z-50 shadow-sm">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center h-16">
-          <div class="flex items-center space-x-3">
-            <a href="/" class="flex items-center space-x-2">
-              <span class="text-2xl font-black tracking-tight text-blue-900">CURZAS</span>
-              <span class="text-xs uppercase bg-blue-100 text-blue-800 font-semibold px-2 py-0.5 rounded">UNComa</span>
+        <div class="flex justify-between items-center h-20">
+          <div class="flex items-center gap-3">
+            <a href="/" class="flex items-center gap-3 group">
+              <!-- Logotipo Tipográfico Institucional -->
+              <div class="bg-[#003366] text-white font-extrabold text-xl sm:text-2xl px-3 py-1 rounded tracking-tight group-hover:bg-[#01579B] transition shadow-sm">
+                CURZAS
+              </div>
+              <div class="hidden sm:block border-l-2 border-slate-200 pl-3 py-0.5">
+                <span class="text-[11px] font-bold text-[#003366] tracking-wide block uppercase leading-tight">
+                  Complejo Universitario Regional
+                </span>
+                <span class="text-[10px] font-semibold text-[#F39200] tracking-wider block uppercase leading-tight">
+                  Zona Atlántica y Sur · UNComa
+                </span>
+              </div>
             </a>
           </div>
 
           <!-- Navegación -->
-          <nav class="hidden md:flex space-x-6 text-sm font-medium text-gray-600">
-            <a href="/" class="hover:text-blue-900 transition">Inicio</a>
-            <a href="/search" class="hover:text-blue-900 transition flex items-center gap-1">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+          <nav class="hidden md:flex items-center space-x-7 text-[13px] font-semibold text-[#153D66]">
+            <a href="/" class="hover:text-[#01579B] transition py-1 border-b-2 border-transparent hover:border-[#F39200]">Inicio</a>
+            <a href="/search" class="hover:text-[#01579B] transition flex items-center gap-1.5 py-1 border-b-2 border-transparent hover:border-[#F39200]">
+              <svg class="w-4 h-4 text-[#01579B]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
               Búsqueda
             </a>
-            <a href="/chat" class="hover:text-blue-900 transition flex items-center gap-1.5 text-blue-700 font-semibold">
-              <span class="w-2 h-2 rounded-full bg-blue-600"></span>
-              Asistente IA
+            <a href="/chat" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-md bg-[#003366] hover:bg-[#01579B] text-white font-medium text-xs transition shadow-sm border border-[#002244]">
+              <svg class="w-3.5 h-3.5 text-[#FFBC7D]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+              <span>Asistente IA</span>
             </a>
           </nav>
 
-          <!-- Botón rápido búsqueda móvil -->
+          <!-- Botón móvil -->
           <div class="flex items-center gap-2 md:hidden">
-            <a href="/search" class="p-2 text-gray-600 hover:text-blue-900">
+            <a href="/search" class="p-2 text-slate-600 hover:text-[#003366]">
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
             </a>
-            <a href="/chat" class="p-2 text-blue-600">
+            <a href="/chat" class="p-2 text-[#003366]">
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
             </a>
           </div>
@@ -57,40 +88,70 @@ const {
       </div>
     </header>
 
-    <!-- Main Content -->
+    <!-- Contenido Principal -->
     <main class="flex-grow">
       <slot />
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-slate-900 text-slate-300 py-10 mt-16 border-t border-slate-800">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div>
-            <h3 class="text-white font-bold text-lg mb-2">CURZAS - UNComa</h3>
-            <p class="text-sm text-slate-400">
-              Complejo Universitario Regional Zona Atlántica y Sur.<br />
-              Universidad Nacional del Comahue.<br />
-              Viedma, Río Negro, Argentina.
-            </p>
-          </div>
-          <div>
-            <h4 class="text-white font-semibold text-sm uppercase tracking-wider mb-2">Servicios del Portal</h4>
-            <ul class="space-y-1 text-sm text-slate-400">
-              <li><a href="/search" class="hover:text-white transition">Búsqueda de Contenidos</a></li>
-              <li><a href="/chat" class="hover:text-white transition">Asistente IA</a></li>
-              <li><a href="https://curza.uncoma.edu.ar" target="_blank" class="hover:text-white transition">Portal Central UNComa</a></li>
-            </ul>
-          </div>
-          <div>
-            <h4 class="text-white font-semibold text-sm uppercase tracking-wider mb-2">Institucional</h4>
-            <p class="text-xs text-slate-400 leading-relaxed">
-              Portal unificado de información académica, carreras de grado y pregrado, investigación y extensión universitaria en la Comarca Viedma - Carmen de Patagones.
-            </p>
+    <!-- Footer Institucional UNComa -->
+    <footer class="mt-20">
+      <!-- Línea dorada de acento institucional UNComa -->
+      <div class="h-1.5 bg-[#F39200]"></div>
+      
+      <div class="bg-[#002244] text-slate-300 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <!-- Columna 1: Identidad -->
+            <div class="md:col-span-2">
+              <div class="flex items-center gap-2 mb-3">
+                <span class="bg-[#01579B] text-white font-extrabold text-lg px-2.5 py-0.5 rounded">CURZAS</span>
+                <span class="text-white font-bold text-base tracking-wide">UNComa</span>
+              </div>
+              <h3 class="text-white font-semibold text-sm mb-2">
+                Complejo Universitario Regional Zona Atlántica y Sur
+              </h3>
+              <p class="text-xs text-slate-400 leading-relaxed max-w-md">
+                Universidad Nacional del Comahue.<br />
+                Sede Central: Monseñor Esandi y Ayacucho, Viedma, Río Negro, Argentina.<br />
+                Educación pública, gratuita, inclusiva y de excelencia en la Patagonia Norte y la Costa Atlántica.
+              </p>
+            </div>
+
+            <!-- Columna 2: Servicios -->
+            <div>
+              <h4 class="text-white font-semibold text-xs uppercase tracking-wider mb-3 text-[#FFBC7D]">Servicios y Accesos</h4>
+              <ul class="space-y-2 text-xs text-slate-300">
+                <li><a href="/search" class="hover:text-white transition hover:underline">Búsqueda de Contenidos</a></li>
+                <li><a href="/chat" class="hover:text-white transition hover:underline flex items-center gap-1">
+                  <span>Asistente IA</span>
+                  <span class="text-[10px] bg-[#01579B] text-white px-1.5 rounded">Nuevo</span>
+                </a></li>
+                <li><a href="/search?q=carrera" class="hover:text-white transition hover:underline">Oferta Académica</a></li>
+                <li><a href="/search?q=bedelia" class="hover:text-white transition hover:underline">Bedelía y Alumnos</a></li>
+              </ul>
+            </div>
+
+            <!-- Columna 3: Enlaces Institucionales -->
+            <div>
+              <h4 class="text-white font-semibold text-xs uppercase tracking-wider mb-3 text-[#FFBC7D]">Universidad</h4>
+              <ul class="space-y-2 text-xs text-slate-300">
+                <li><a href="https://uncoma.edu.ar" target="_blank" rel="noopener noreferrer" class="hover:text-white transition hover:underline flex items-center gap-1">
+                  <span>Portal Central UNComa</span>
+                  <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                </a></li>
+                <li><a href="https://curza.uncoma.edu.ar" target="_blank" rel="noopener noreferrer" class="hover:text-white transition hover:underline">Sitio Histórico CURZA</a></li>
+                <li><a href="/search?q=resolucion" class="hover:text-white transition hover:underline">Boletín Oficial y Resoluciones</a></li>
+              </ul>
+            </div>
           </div>
         </div>
-        <div class="mt-8 pt-6 border-t border-slate-800 text-center text-xs text-slate-500">
-          &copy; {new Date().getFullYear()} CURZAS - UNComa. Plataforma Modernizada.
+      </div>
+
+      <!-- Barra Inferior de Copyright -->
+      <div class="bg-[#001730] py-4 border-t border-white/5 text-center text-xs text-slate-400">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-2">
+          <span>&copy; {new Date().getFullYear()} CURZAS - Universidad Nacional del Comahue.</span>
+          <span class="text-slate-500 text-[11px]">Plataforma Digital Institucional · Viedma, Río Negro</span>
         </div>
       </div>
     </footer>

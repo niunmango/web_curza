@@ -5,15 +5,16 @@ import Layout from '../layouts/Layout.astro';
 <Layout title="Asistente Virtual IA - CURZAS UNComa">
   <div class="max-w-4xl mx-auto px-3 sm:px-6 py-3 sm:py-4 flex flex-col h-[calc(100vh-9.5rem)] min-h-[460px]">
     <!-- Header Chat -->
-    <div class="flex items-center justify-between pb-2.5 border-b border-gray-200 mb-3 flex-shrink-0">
+    <div class="flex items-center justify-between pb-2.5 border-b border-slate-200 mb-3 flex-shrink-0">
       <div>
-        <h1 class="text-lg sm:text-xl font-bold text-gray-900 leading-tight">Asistente Virtual Institucional</h1>
-        <p class="text-xs text-gray-500 mt-0.5">
-          Respuestas orientativas fundamentadas en la documentación y normativa oficial de CURZAS.
+        <div class="inline-block text-[10px] font-bold text-[#F39200] uppercase tracking-wider">Servicio Digital</div>
+        <h1 class="text-base sm:text-lg font-bold text-[#003366] leading-tight">Asistente Virtual Institucional</h1>
+        <p class="text-xs text-slate-500 mt-0.5">
+          Consultas orientativas fundamentadas en resoluciones, planes y documentación oficial de CURZAS.
         </p>
       </div>
 
-      <button id="clear-chat" class="text-xs text-gray-400 hover:text-gray-600 transition px-2 py-1 rounded hover:bg-gray-100">
+      <button id="clear-chat" class="text-xs text-slate-400 hover:text-slate-600 transition px-2 py-1 rounded hover:bg-slate-100">
         Limpiar chat
       </button>
     </div>
@@ -22,20 +23,20 @@ import Layout from '../layouts/Layout.astro';
     <div id="chat-messages" class="flex-grow overflow-y-auto space-y-2.5 pr-2 pb-2 scroll-smooth">
       <!-- Mensaje Inicial del Asistente -->
       <div class="flex items-start gap-2.5">
-        <div class="w-6 h-6 rounded-full bg-blue-900 text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 shadow-sm mt-0.5">
+        <div class="w-6 h-6 rounded-full bg-[#003366] text-[#FFBC7D] flex items-center justify-center text-[10px] font-bold flex-shrink-0 shadow-sm mt-0.5 border border-[#002244]">
           IA
         </div>
-        <div class="bg-white border border-gray-200 rounded-xl rounded-tl-none px-3.5 py-2.5 max-w-3xl shadow-sm text-xs sm:text-sm text-gray-800 leading-snug">
+        <div class="bg-white border border-slate-200 rounded-xl rounded-tl-none px-3.5 py-2.5 max-w-3xl shadow-sm text-xs sm:text-sm text-slate-800 leading-snug">
           <p class="mb-2">¡Hola! Soy el asistente institucional del CURZAS (UNComa). Puedo orientarte sobre carreras, inscripciones, fechas de examen, normativas y vida estudiantil.</p>
-          <div class="pt-2 border-t border-gray-100 flex flex-wrap items-center gap-1.5 text-xs">
-            <span class="text-gray-400 text-[11px]">Sugerencias:</span>
-            <button class="suggest-btn text-blue-700 bg-blue-50 hover:bg-blue-100 px-2 py-0.5 rounded transition text-xs">
+          <div class="pt-2 border-t border-slate-100 flex flex-wrap items-center gap-1.5 text-xs">
+            <span class="text-slate-400 text-[11px]">Consultas frecuentes:</span>
+            <button class="suggest-btn text-[#003366] bg-[#F0F5FA] hover:bg-[#003366] hover:text-white border border-slate-200/80 px-2 py-0.5 rounded transition text-xs">
               ¿Qué carreras se dictan en CURZAS?
             </button>
-            <button class="suggest-btn text-blue-700 bg-blue-50 hover:bg-blue-100 px-2 py-0.5 rounded transition text-xs">
+            <button class="suggest-btn text-[#003366] bg-[#F0F5FA] hover:bg-[#003366] hover:text-white border border-slate-200/80 px-2 py-0.5 rounded transition text-xs">
               ¿Cómo realizo trámites en Bedelía?
             </button>
-            <button class="suggest-btn text-blue-700 bg-blue-50 hover:bg-blue-100 px-2 py-0.5 rounded transition text-xs">
+            <button class="suggest-btn text-[#003366] bg-[#F0F5FA] hover:bg-[#003366] hover:text-white border border-slate-200/80 px-2 py-0.5 rounded transition text-xs">
               ¿Cuáles son los requisitos de ingreso?
             </button>
           </div>
@@ -44,26 +45,26 @@ import Layout from '../layouts/Layout.astro';
     </div>
 
     <!-- Input Box -->
-    <div class="pt-2.5 border-t border-gray-200 flex-shrink-0">
+    <div class="pt-2.5 border-t border-slate-200 flex-shrink-0">
       <form id="chat-form" class="relative flex items-center">
         <textarea 
           id="chat-input"
           rows="1"
           placeholder="Escribí tu consulta institucional aquí..."
-          class="w-full resize-none rounded-xl border border-gray-300 pl-3.5 pr-20 py-2 text-xs sm:text-sm focus:border-blue-600 focus:ring-1 focus:ring-blue-500 outline-none shadow-sm bg-white"
+          class="w-full resize-none rounded-lg border border-slate-300 pl-3.5 pr-24 py-2.5 text-xs sm:text-sm focus:border-[#F39200] focus:ring-1 focus:ring-[#F39200] outline-none shadow-sm bg-white"
           required
         ></textarea>
         <button 
           type="submit" 
           id="send-btn"
-          class="absolute right-1.5 px-3 py-1.5 bg-blue-800 hover:bg-blue-900 text-white font-medium rounded-lg text-xs sm:text-sm transition shadow-sm flex items-center gap-1"
+          class="absolute right-1.5 px-3 py-1.5 bg-[#003366] hover:bg-[#01579B] text-white font-medium rounded-md text-xs sm:text-sm transition shadow-sm flex items-center gap-1 border border-[#002244]"
         >
           <span>Enviar</span>
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+          <svg class="w-3.5 h-3.5 text-[#FFBC7D]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
         </button>
       </form>
-      <div class="text-[10px] text-gray-400 text-center mt-1">
-        Respuestas automáticas generadas con IA en base a documentos y resoluciones oficiales.
+      <div class="text-[10px] text-slate-400 text-center mt-1">
+        Respuestas generadas en base a resoluciones y documentación institucional de CURZAS - UNComa.
       </div>
     </div>
   </div>
@@ -142,10 +143,10 @@ import Layout from '../layouts/Layout.astro';
       const msgDiv = document.createElement('div');
       msgDiv.className = 'flex items-start justify-end gap-2.5';
       msgDiv.innerHTML = `
-        <div class="bg-blue-800 text-white rounded-xl rounded-tr-none px-3.5 py-2 max-w-2xl shadow-sm text-xs sm:text-sm leading-snug whitespace-pre-wrap">
+        <div class="bg-[#003366] text-white rounded-xl rounded-tr-none px-3.5 py-2 max-w-2xl shadow-sm text-xs sm:text-sm leading-snug whitespace-pre-wrap border border-[#002244]">
           ${escapeHtml(text)}
         </div>
-        <div class="w-6 h-6 rounded-full bg-slate-300 text-slate-700 flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5">
+        <div class="w-6 h-6 rounded-full bg-slate-200 text-[#003366] border border-slate-300 flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5">
           Tú
         </div>
       `;
@@ -200,15 +201,15 @@ import Layout from '../layouts/Layout.astro';
         const uniqueSources = Array.from(new Set(sources.filter(Boolean)));
         if (uniqueSources.length > 0) {
           sourcesHtml = `
-            <div class="mt-2 pt-1.5 border-t border-gray-100">
-              <span class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">Fuentes de verificación:</span>
+            <div class="mt-2 pt-1.5 border-t border-slate-100">
+              <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">Fuentes de verificación:</span>
               <div class="flex flex-wrap gap-1">
                 ${uniqueSources.map(s => {
                   const isLocal = s.startsWith('/contenido/');
                   const label = isLocal ? `Doc. ${s.replace('/contenido/', '')}` : s;
                   return `
-                    <a href="${s}" class="inline-flex items-center gap-1 text-[11px] text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200/60 px-2 py-0.5 rounded transition">
-                      <svg class="w-3 h-3 text-blue-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    <a href="${s}" class="inline-flex items-center gap-1 text-[11px] text-[#003366] bg-[#F0F5FA] hover:bg-[#E2EDF8] border border-[#01579B]/20 px-2 py-0.5 rounded transition">
+                      <svg class="w-3 h-3 text-[#01579B] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                       ${escapeHtml(label)}
                     </a>
                   `;
@@ -220,10 +221,10 @@ import Layout from '../layouts/Layout.astro';
       }
 
       msgDiv.innerHTML = `
-        <div class="w-6 h-6 rounded-full bg-blue-900 text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 shadow-sm mt-0.5">
+        <div class="w-6 h-6 rounded-full bg-[#003366] text-[#FFBC7D] flex items-center justify-center text-[10px] font-bold flex-shrink-0 shadow-sm mt-0.5 border border-[#002244]">
           IA
         </div>
-        <div class="bg-white border border-gray-200 rounded-xl rounded-tl-none px-3.5 py-2.5 max-w-3xl shadow-sm text-xs sm:text-sm text-gray-800 leading-snug">
+        <div class="bg-white border border-slate-200 rounded-xl rounded-tl-none px-3.5 py-2.5 max-w-3xl shadow-sm text-xs sm:text-sm text-slate-800 leading-snug">
           ${formatAssistantContent(text)}
           ${sourcesHtml}
         </div>
@@ -237,11 +238,11 @@ import Layout from '../layouts/Layout.astro';
       msgDiv.id = id;
       msgDiv.className = 'flex items-start gap-2.5';
       msgDiv.innerHTML = `
-        <div class="w-6 h-6 rounded-full bg-blue-900 text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 shadow-sm mt-0.5">
+        <div class="w-6 h-6 rounded-full bg-[#003366] text-[#FFBC7D] flex items-center justify-center text-[10px] font-bold flex-shrink-0 shadow-sm mt-0.5 border border-[#002244]">
           IA
         </div>
-        <div class="bg-white border border-gray-200 rounded-xl rounded-tl-none px-3.5 py-2 max-w-2xl shadow-sm text-xs sm:text-sm text-gray-500 flex items-center gap-2">
-          <svg class="animate-spin h-3.5 w-3.5 text-blue-600" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+        <div class="bg-white border border-slate-200 rounded-xl rounded-tl-none px-3.5 py-2 max-w-2xl shadow-sm text-xs sm:text-sm text-slate-500 flex items-center gap-2">
+          <svg class="animate-spin h-3.5 w-3.5 text-[#01579B]" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
           Generando respuesta...
         </div>
       `;

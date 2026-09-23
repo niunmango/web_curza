@@ -4,12 +4,21 @@ export default {
   theme: {
     extend: {
       colors: {
-        curza: {
-          blue: '#003366',
-          lightBlue: '#0055a5',
-          gold: '#c69214',
-          gray: '#f4f6f9'
+        uncoma: {
+          navy: '#003366',       // Azul institucional primario UNComa
+          dark: '#002244',       // Azul noche para footers y barras
+          slate: '#153D66',      // Azul pizarra intermedio
+          blue: '#01579B',       // Azul medio de interacción
+          sky: '#6EC1E4',        // Azul cielo de acento
+          ice: '#F0F5FA',        // Fondo suave institucional
+          gold: '#F39200',       // Dorado / Ámbar institucional UNComa
+          lightGold: '#FFBC7D',  // Ámbar claro
+          text: '#313131',       // Texto oscuro principal
+          muted: '#545454'       // Texto secundario
         }
+      },
+      fontFamily: {
+        sans: ['Poppins', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
       }
     },
   },

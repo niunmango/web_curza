@@ -2,121 +2,174 @@
 import Layout from '../layouts/Layout.astro';
 ---
 
-<Layout title="Portal Institucional CURZAS - UNComa">
-  <!-- Hero Section -->
-  <section class="bg-gradient-to-br from-blue-900 via-indigo-900 to-slate-900 text-white py-16 px-4 sm:px-6 lg:px-8">
+<Layout title="Portal Institucional CURZAS - Universidad Nacional del Comahue">
+  <!-- Hero Section Institucional UNComa -->
+  <section class="bg-gradient-to-b from-[#002B54] via-[#003366] to-[#002244] text-white py-16 px-4 sm:px-6 lg:px-8 border-b-4 border-[#F39200]">
     <div class="max-w-4xl mx-auto text-center">
-      <div class="inline-block bg-blue-800/60 border border-blue-700/50 rounded-full px-4 py-1 text-xs font-semibold tracking-wider uppercase mb-4 text-blue-200">
-        Universidad Nacional del Comahue (UNComa)
+      <div class="inline-flex items-center gap-2 bg-white/10 border border-white/15 rounded-full px-4 py-1 text-xs font-semibold tracking-wider uppercase mb-5 text-[#FFBC7D]">
+        <span>UNComa</span>
+        <span class="text-white/40">·</span>
+        <span>Universidad Nacional del Comahue</span>
       </div>
-      <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight mb-4">
-        Complejo Universitario Regional <span class="text-amber-400">Zona Atlántica y Sur</span>
+      <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight mb-4 text-white leading-tight">
+        Complejo Universitario Regional<br class="hidden sm:inline" />
+        <span class="text-[#FFBC7D]">Zona Atlántica y Sur</span>
       </h1>
-      <p class="text-base sm:text-lg text-slate-300 mb-8 max-w-2xl mx-auto">
-        Plataforma unificada de información académica, carreras, novedades institucionales y motor de búsqueda inteligente.
+      <p class="text-sm sm:text-base text-slate-200 mb-8 max-w-2xl mx-auto leading-relaxed">
+        Plataforma oficial de información académica, carreras de grado y posgrado, trámites estudiantiles y motor de búsqueda institucional.
       </p>
 
       <!-- Buscador Principal Instantáneo -->
-      <form action="/search" method="GET" class="max-w-2xl mx-auto relative flex items-center shadow-2xl">
-        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-          <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+      <form action="/search" method="GET" class="max-w-2xl mx-auto relative flex items-center shadow-xl">
+        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
         </div>
         <input 
           type="text" 
           name="q" 
-          placeholder="Buscar carreras, resoluciones, bedelía, trámites..." 
-          class="w-full pl-11 pr-28 py-4 rounded-xl text-gray-900 bg-white border-0 focus:ring-4 focus:ring-blue-400 text-base shadow-sm outline-none"
+          placeholder="Buscar carreras, resoluciones, bedelía, inscripciones..." 
+          class="w-full pl-11 pr-28 py-3.5 sm:py-4 rounded-lg text-slate-900 bg-white border border-slate-300 focus:ring-2 focus:ring-[#F39200] focus:border-[#F39200] text-sm sm:text-base outline-none shadow-inner"
           required
         />
         <button 
           type="submit" 
-          class="absolute right-2 px-5 py-2.5 bg-blue-700 hover:bg-blue-800 text-white font-medium rounded-lg text-sm transition shadow-sm"
+          class="absolute right-1.5 sm:right-2 px-4 sm:px-6 py-2 sm:py-2.5 bg-[#003366] hover:bg-[#01579B] text-white font-semibold rounded-md text-xs sm:text-sm transition shadow-sm border border-[#002244]"
         >
           Buscar
         </button>
       </form>
 
       <!-- Chips de búsqueda rápida -->
-      <div class="flex flex-wrap justify-center gap-2 mt-4 text-xs text-blue-200">
-        <span>Búsquedas frecuentes:</span>
-        <a href="/search?q=Enfermeria" class="hover:underline bg-white/10 px-2 py-0.5 rounded">Enfermería</a>
-        <a href="/search?q=Psicopedagogia" class="hover:underline bg-white/10 px-2 py-0.5 rounded">Psicopedagogía</a>
-        <a href="/search?q=Administracion" class="hover:underline bg-white/10 px-2 py-0.5 rounded">Administración Pública</a>
-        <a href="/search?q=Bedelia" class="hover:underline bg-white/10 px-2 py-0.5 rounded">Bedelía</a>
+      <div class="flex flex-wrap justify-center items-center gap-2 mt-4 text-xs text-slate-200">
+        <span class="text-slate-300 font-medium">Búsquedas habituales:</span>
+        <a href="/search?q=Enfermeria" class="bg-white/10 hover:bg-white/20 border border-white/15 px-2.5 py-0.5 rounded text-white transition">Enfermería</a>
+        <a href="/search?q=Psicopedagogia" class="bg-white/10 hover:bg-white/20 border border-white/15 px-2.5 py-0.5 rounded text-white transition">Psicopedagogía</a>
+        <a href="/search?q=Administracion" class="bg-white/10 hover:bg-white/20 border border-white/15 px-2.5 py-0.5 rounded text-white transition">Administración</a>
+        <a href="/search?q=Bedelia" class="bg-white/10 hover:bg-white/20 border border-white/15 px-2.5 py-0.5 rounded text-white transition">Bedelía</a>
+        <a href="/search?q=Calendario" class="bg-white/10 hover:bg-white/20 border border-white/15 px-2.5 py-0.5 rounded text-white transition">Calendario Académico</a>
       </div>
     </div>
   </section>
 
-  <!-- Banner Asistente Virtual RAG -->
+  <!-- Banner Asistente Virtual Institucional -->
   <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6">
-    <div class="bg-gradient-to-r from-blue-700 to-indigo-800 rounded-2xl p-6 sm:p-8 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-6 border border-blue-600">
+    <div class="bg-white rounded-xl p-5 sm:p-7 shadow-lg border border-slate-200/80 border-l-4 border-l-[#F39200] flex flex-col md:flex-row items-center justify-between gap-6">
       <div class="flex items-start gap-4">
-        <div class="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center flex-shrink-0 text-amber-300">
-          <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+        <div class="w-12 h-12 rounded-lg bg-[#F0F5FA] text-[#003366] flex items-center justify-center flex-shrink-0 border border-slate-200">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
         </div>
         <div>
-          <h3 class="text-xl font-bold">Asistente Virtual CURZAS</h3>
-          <p class="text-sm text-blue-100 mt-1 max-w-xl">
-            Realizá preguntas institucionales sobre planes de estudio, calendarios académicos e inscripciones. Respuestas automáticas con información oficial.
+          <div class="flex items-center gap-2">
+            <h3 class="text-lg font-bold text-[#003366]">Asistente Virtual Institucional</h3>
+            <span class="text-[10px] font-bold uppercase tracking-wider bg-[#F0F5FA] text-[#01579B] border border-blue-200 px-2 py-0.5 rounded">CURZAS</span>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-600 mt-1 max-w-2xl leading-relaxed">
+            Realizá preguntas sobre planes de estudio, calendarios académicos, correlatividades, constancias e inscripciones. Respuestas instantáneas orientadas en la normativa oficial.
           </p>
         </div>
       </div>
-      <a href="/chat" class="px-6 py-3 bg-white text-blue-900 font-bold rounded-xl hover:bg-blue-50 transition shadow-md whitespace-nowrap flex items-center gap-2">
-        <span>Consultar al Asistente</span>
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+      <a href="/chat" class="px-5 py-2.5 bg-[#003366] hover:bg-[#01579B] text-white font-semibold text-xs sm:text-sm rounded-lg transition shadow-sm whitespace-nowrap flex items-center gap-2 border border-[#002244]">
+        <span>Consultar al Asistente IA</span>
+        <svg class="w-4 h-4 text-[#FFBC7D]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
       </a>
     </div>
   </section>
 
-  <!-- Secciones Destacadas -->
+  <!-- Secciones Destacadas / Accesos Académicos -->
   <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
     <div class="text-center mb-12">
-      <h2 class="text-2xl sm:text-3xl font-bold text-gray-900">Accesos Directos y Gestión Institucional</h2>
-      <p class="text-gray-500 text-sm mt-2">Navegación ágil a los departamentos del complejo</p>
+      <div class="inline-block text-xs font-bold text-[#F39200] uppercase tracking-widest mb-1">
+        Servicios y Gestión
+      </div>
+      <h2 class="text-2xl sm:text-3xl font-bold text-[#003366] tracking-tight">Accesos Directos Institucionales</h2>
+      <p class="text-slate-500 text-xs sm:text-sm mt-1 max-w-xl mx-auto">Información organizada por áreas académicas y administrativas del complejo</p>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
       <!-- Tarjeta Carreras -->
-      <div class="bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition">
-        <div class="w-10 h-10 rounded-lg bg-blue-100 text-blue-800 flex items-center justify-center mb-4">
+      <div class="bg-white rounded-xl p-6 border border-slate-200 border-t-4 border-t-[#003366] shadow-sm hover:shadow-md transition group">
+        <div class="w-11 h-11 rounded-lg bg-[#F0F5FA] text-[#003366] group-hover:bg-[#003366] group-hover:text-white transition flex items-center justify-center mb-4">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"></path></svg>
         </div>
-        <h3 class="text-lg font-bold text-gray-900 mb-2">Oferta Académica</h3>
-        <p class="text-sm text-gray-600 mb-4">
+        <h3 class="text-lg font-bold text-[#003366] mb-2 group-hover:text-[#01579B] transition">Oferta Académica</h3>
+        <p class="text-xs sm:text-sm text-slate-600 mb-4 leading-relaxed">
           Licenciaturas, profesorados y tecnicaturas dictadas en el CURZAS, con planes de correlatividades y perfiles de egreso.
         </p>
-        <a href="/search?q=carrera" class="text-sm font-semibold text-blue-700 hover:text-blue-900 flex items-center gap-1">
+        <a href="/search?q=carrera" class="text-xs font-bold text-[#01579B] hover:text-[#002244] uppercase tracking-wider flex items-center gap-1">
           Ver carreras indexadas &rarr;
         </a>
       </div>
 
       <!-- Tarjeta Bedelía & Alumnos -->
-      <div class="bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition">
-        <div class="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center mb-4">
+      <div class="bg-white rounded-xl p-6 border border-slate-200 border-t-4 border-t-[#F39200] shadow-sm hover:shadow-md transition group">
+        <div class="w-11 h-11 rounded-lg bg-[#FFF8EE] text-[#F39200] group-hover:bg-[#F39200] group-hover:text-white transition flex items-center justify-center mb-4">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
         </div>
-        <h3 class="text-lg font-bold text-gray-900 mb-2">Alumnos y Bedelía</h3>
-        <p class="text-sm text-gray-600 mb-4">
-          Inscripciones, exámenes finales, calendario académico, constancias y trámites estudiantiles.
+        <h3 class="text-lg font-bold text-[#003366] mb-2 group-hover:text-[#01579B] transition">Alumnos y Bedelía</h3>
+        <p class="text-xs sm:text-sm text-slate-600 mb-4 leading-relaxed">
+          Inscripciones, mesas de exámenes finales, calendario académico, constancias de alumno regular y trámites.
         </p>
-        <a href="/search?q=bedelia" class="text-sm font-semibold text-blue-700 hover:text-blue-900 flex items-center gap-1">
+        <a href="/search?q=bedelia" class="text-xs font-bold text-[#01579B] hover:text-[#002244] uppercase tracking-wider flex items-center gap-1">
           Información de trámites &rarr;
         </a>
       </div>
 
       <!-- Tarjeta Bienestar y Comunidad -->
-      <div class="bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition">
-        <div class="w-10 h-10 rounded-lg bg-purple-100 text-purple-800 flex items-center justify-center mb-4">
+      <div class="bg-white rounded-xl p-6 border border-slate-200 border-t-4 border-t-[#003366] shadow-sm hover:shadow-md transition group">
+        <div class="w-11 h-11 rounded-lg bg-[#F0F5FA] text-[#003366] group-hover:bg-[#003366] group-hover:text-white transition flex items-center justify-center mb-4">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
         </div>
-        <h3 class="text-lg font-bold text-gray-900 mb-2">Bienestar y Comunidad</h3>
-        <p class="text-sm text-gray-600 mb-4">
-          Becas, comedor, deportes, accesibilidad y actividades de extensión universitaria para estudiantes y docentes.
+        <h3 class="text-lg font-bold text-[#003366] mb-2 group-hover:text-[#01579B] transition">Bienestar y Comunidad</h3>
+        <p class="text-xs sm:text-sm text-slate-600 mb-4 leading-relaxed">
+          Becas universitarias, servicio de comedor, deportes, accesibilidad y actividades de extensión y vinculación.
         </p>
-        <a href="/search?q=bienestar" class="text-sm font-semibold text-blue-700 hover:text-blue-900 flex items-center gap-1">
-          Ver novedades de bienestar &rarr;
+        <a href="/search?q=bienestar" class="text-xs font-bold text-[#01579B] hover:text-[#002244] uppercase tracking-wider flex items-center gap-1">
+          Ver bienestar y becas &rarr;
         </a>
       </div>
+    </div>
+
+    <!-- Módulo Institucional Adicional: Biblioteca, Resoluciones, Investigación -->
+    <div class="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+      <a href="/search?q=biblioteca" class="bg-white p-4 rounded-lg border border-slate-200 hover:border-[#01579B] shadow-sm hover:shadow transition flex items-center gap-3">
+        <div class="w-9 h-9 rounded bg-[#F0F5FA] text-[#003366] flex items-center justify-center flex-shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+        </div>
+        <div class="truncate">
+          <span class="text-xs font-bold text-[#003366] block truncate">Biblioteca</span>
+          <span class="text-[11px] text-slate-400">Catálogo y repositorios</span>
+        </div>
+      </a>
+
+      <a href="/search?q=resolucion" class="bg-white p-4 rounded-lg border border-slate-200 hover:border-[#01579B] shadow-sm hover:shadow transition flex items-center gap-3">
+        <div class="w-9 h-9 rounded bg-[#F0F5FA] text-[#003366] flex items-center justify-center flex-shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+        </div>
+        <div class="truncate">
+          <span class="text-xs font-bold text-[#003366] block truncate">Resoluciones</span>
+          <span class="text-[11px] text-slate-400">Boletín Oficial</span>
+        </div>
+      </a>
+
+      <a href="/search?q=extension" class="bg-white p-4 rounded-lg border border-slate-200 hover:border-[#01579B] shadow-sm hover:shadow transition flex items-center gap-3">
+        <div class="w-9 h-9 rounded bg-[#F0F5FA] text-[#003366] flex items-center justify-center flex-shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+        </div>
+        <div class="truncate">
+          <span class="text-xs font-bold text-[#003366] block truncate">Extensión</span>
+          <span class="text-[11px] text-slate-400">Cursos y proyectos</span>
+        </div>
+      </a>
+
+      <a href="/search?q=investigacion" class="bg-white p-4 rounded-lg border border-slate-200 hover:border-[#01579B] shadow-sm hover:shadow transition flex items-center gap-3">
+        <div class="w-9 h-9 rounded bg-[#F0F5FA] text-[#003366] flex items-center justify-center flex-shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+        </div>
+        <div class="truncate">
+          <span class="text-xs font-bold text-[#003366] block truncate">Investigación</span>
+          <span class="text-[11px] text-slate-400">Proyectos y becas</span>
+        </div>
+      </a>
     </div>
   </section>
 </Layout>
