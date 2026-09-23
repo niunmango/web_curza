@@ -185,3 +185,78 @@ Todas las rutas se resuelven a partir de `${SITE_URL}` (ejemplo: `https://www.cu
 - **Panel Strapi CMS**: `${SITE_URL}/admin`
 - **Healthcheck RAG API**: `${SITE_URL}/api/rag/health`
 - **Healthcheck Meilisearch**: `${SITE_URL}/api/search/health`
+
+---
+
+## 📝 Cómo Publicar Contenido Manualmente en el Sitio
+
+El portal ofrece diferentes métodos según el tipo de contenido que se desee publicar:
+
+### Opción 1: Publicar Noticias, Avisos o Resoluciones (Recomendado)
+Para publicar novedades o artículos que requieran tener su propia página web (`${SITE_URL}/contenido/...`), aparecer de inmediato en el buscador instantáneo y ser aprendidos por el Asistente IA:
+
+Utilizar el script interactivo incluido en la raíz del proyecto:
+
+```bash
+./publicar.py
+```
+
+El script te solicitará:
+1. **Título** de la publicación.
+2. **Tipo**: Noticia / Novedad o Página institucional.
+3. **Contenido**: Permite escribir o pegar texto multilínea. Al escribir `FIN` en una línea nueva, se publica automáticamente.
+
+También puede ejecutarse de forma directa con argumentos por línea de comandos:
+
+```bash
+./publicar.py --titulo "Convocatoria a Becas de Residencia 2026" \
+  --contenido "La Secretaría de Bienestar informa que se abren las inscripciones desde el 1 de octubre..." \
+  --tipo noticia
+```
+
+**¿Qué hace automáticamente este comando?**
+- Crea la vista en `${SITE_URL}/contenido/post_<id>` con encabezados, fechas y tipografía institucional.
+- Indexa el documento en **Meilisearch** para que aparezca en el buscador instantáneo (`${SITE_URL}/search`).
+- Genera el embedding vectorial y lo guarda en **Qdrant**, permitiendo que el **Asistente IA** (`${SITE_URL}/chat`) responda preguntas basadas en este contenido inmediatamente.
+
+---
+
+### Opción 2: Crear una Página Web Institucional fija (con diseño a medida)
+Si deseás crear una sección institucional permanente (por ejemplo `${SITE_URL}/comedor` o `${SITE_URL}/institucional/historia`):
+
+1. Creá un archivo `.astro` dentro del directorio `frontend/src/pages/` (ejemplo: `frontend/src/pages/comedor.astro`).
+2. Utilizá la plantilla institucional con el componente `<Layout>`:
+
+```astro
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Comedor Universitario - CURZAS">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <h1 class="text-3xl font-bold text-[#003366] mb-4">Comedor Universitario</h1>
+    <p class="text-slate-600 leading-relaxed text-sm sm:text-base">
+      Información sobre horarios de atención, menú estudiantil y solicitud de viandas...
+    </p>
+  </div>
+</Layout>
+```
+
+Astro detectará el archivo nuevo y lo publicará automáticamente en `${SITE_URL}/comedor` sin necesidad de reiniciar contenedores.
+
+---
+
+### Opción 3: Actualizar Departamentos, Carreras o Autoridades
+Si necesitás modificar datos de las autoridades de un departamento (director/a, horarios, correos) o de las carreras (planes de estudio vigentes, ordenanzas, materias):
+
+- Editá directamente el archivo JSON estructurado: `frontend/src/data/departamentos.json`.
+- Los cambios se reflejarán de inmediato tanto en la sección de inicio como en las páginas de cada departamento (`${SITE_URL}/tecnologia`, `${SITE_URL}/psicopedagogia`, etc.).
+
+---
+
+### Opción 4: A través del Panel Web CMS (Strapi)
+Para gestionar contenidos mediante interfaz gráfica web:
+
+- Accedé a: `${SITE_URL}/admin` (ejemplo: `https://www.curza.uncoma.edu.ar/admin`).
+- Si es la primera vez, el sistema te solicitará crear la cuenta inicial de administrador.
+- Permite crear colecciones de contenido personalizadas, redactar en editor enriquecido y subir imágenes a la biblioteca de medios.
