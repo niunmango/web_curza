@@ -36,7 +36,9 @@
         path /api/rag/health
     }
     handle @rag_chat {
-        reverse_proxy rag-api:8000
+        reverse_proxy rag-api:8000 {
+            flush_interval -1
+        }
     }
     handle @rag_health {
         reverse_proxy rag-api:8000

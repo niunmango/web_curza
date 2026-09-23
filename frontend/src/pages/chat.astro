@@ -109,7 +109,7 @@ import Layout from '../layouts/Layout.astro';
       appendUserMessage(prompt);
       scrollToBottom();
 
-      // 2. Renderizar indicador de carga
+      // 2. Renderizar indicador de carga inicial
       const loadingId = appendLoadingMessage();
       scrollToBottom();
 
@@ -117,17 +117,87 @@ import Layout from '../layouts/Layout.astro';
         const res = await fetch('/api/rag/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt })
+          body: JSON.stringify({ prompt, stream: true })
         });
 
-        removeLoadingMessage(loadingId);
-
         if (!res.ok) {
+          removeLoadingMessage(loadingId);
           throw new Error(`Error en servicio RAG (${res.status})`);
         }
 
-        const data = await res.json();
-        appendAssistantMessage(data.answer, data.sources || []);
+        const contentType = res.headers.get('content-type') || '';
+
+        // Fallback a respuesta JSON normal si el backend no envía stream
+        if (contentType.includes('application/json')) {
+          removeLoadingMessage(loadingId);
+          const data = await res.json();
+          appendAssistantMessage(data.answer, data.sources || []);
+          return;
+        }
+
+        // Manejo de Streaming SSE en tiempo real
+        const reader = res.body?.getReader();
+        if (!reader) {
+          removeLoadingMessage(loadingId);
+          throw new Error('No se pudo inicializar la lectura en tiempo real.');
+        }
+
+        let streamingMsg: ReturnType<typeof createStreamingAssistantMessage> | null = null;
+        const decoder = new TextDecoder();
+        let buffer = '';
+        let fullText = '';
+        let sources: string[] = [];
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || '';
+
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed.startsWith('data: ')) continue;
+            const dataStr = trimmed.slice(6).trim();
+            if (!dataStr || dataStr === '[DONE]') continue;
+
+            try {
+              const event = JSON.parse(dataStr);
+              if (event.type === 'sources') {
+                sources = event.sources || [];
+                if (!streamingMsg) {
+                  removeLoadingMessage(loadingId);
+                  streamingMsg = createStreamingAssistantMessage();
+                }
+                streamingMsg.setSources(sources);
+                scrollToBottom();
+              } else if (event.type === 'token') {
+                if (!streamingMsg) {
+                  removeLoadingMessage(loadingId);
+                  streamingMsg = createStreamingAssistantMessage();
+                }
+                fullText += event.token;
+                streamingMsg.appendChunk(fullText);
+                scrollToBottom();
+              } else if (event.type === 'error') {
+                throw new Error(event.error);
+              } else if (event.type === 'done') {
+                if (streamingMsg) streamingMsg.finalize(fullText);
+              }
+            } catch (jsonErr: any) {
+              // Ignorar fragmentos parciales si los hubiera
+            }
+          }
+        }
+
+        if (streamingMsg) {
+          streamingMsg.finalize(fullText);
+        } else {
+          removeLoadingMessage(loadingId);
+          appendAssistantMessage(fullText || 'Sin respuesta del modelo.', sources);
+        }
+
       } catch (err: any) {
         removeLoadingMessage(loadingId);
         appendErrorMessage(err.message || 'No se pudo comunicar con el servicio de IA.');
@@ -138,6 +208,61 @@ import Layout from '../layouts/Layout.astro';
         scrollToBottom();
       }
     });
+
+    function createStreamingAssistantMessage() {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'flex items-start gap-2.5';
+
+      const avatarDiv = document.createElement('div');
+      avatarDiv.className = 'w-6 h-6 rounded-full bg-white border border-slate-200 flex items-center justify-center flex-shrink-0 shadow-sm mt-0.5 overflow-hidden p-0.5';
+      avatarDiv.innerHTML = '<img src="/images/CURZAS.png" alt="IA" class="w-full h-full object-contain" />';
+
+      const bubbleDiv = document.createElement('div');
+      bubbleDiv.className = 'bg-white border border-slate-200 rounded-xl rounded-tl-none px-3.5 py-2.5 max-w-3xl shadow-sm text-xs sm:text-sm text-slate-800 leading-snug';
+
+      const contentDiv = document.createElement('div');
+      contentDiv.className = 'assistant-content';
+      bubbleDiv.appendChild(contentDiv);
+
+      const sourcesDiv = document.createElement('div');
+      sourcesDiv.className = 'sources-container mt-2 pt-1.5 border-t border-slate-100 hidden';
+      bubbleDiv.appendChild(sourcesDiv);
+
+      msgDiv.appendChild(avatarDiv);
+      msgDiv.appendChild(bubbleDiv);
+      messagesContainer.appendChild(msgDiv);
+
+      return {
+        appendChunk: (text: string) => {
+          contentDiv.innerHTML = formatAssistantContent(text) + '<span class="inline-block w-1.5 h-3 bg-[#003366] ml-1 align-baseline animate-pulse"></span>';
+        },
+        setSources: (sourcesList: string[]) => {
+          if (!sourcesList || sourcesList.length === 0) return;
+          const uniqueSources = Array.from(new Set(sourcesList.filter(Boolean)));
+          if (uniqueSources.length === 0) return;
+
+          sourcesDiv.classList.remove('hidden');
+          sourcesDiv.innerHTML = `
+            <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">Fuentes de verificación:</span>
+            <div class="flex flex-wrap gap-1">
+              ${uniqueSources.map(s => {
+                const isLocal = s.startsWith('/contenido/');
+                const label = isLocal ? `Doc. ${s.replace('/contenido/', '')}` : s;
+                return `
+                  <a href="${s}" class="inline-flex items-center gap-1 text-[11px] text-[#003366] bg-[#F0F5FA] hover:bg-[#E2EDF8] border border-[#01579B]/20 px-2 py-0.5 rounded transition">
+                    <svg class="w-3 h-3 text-[#01579B] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    ${escapeHtml(label)}
+                  </a>
+                `;
+              }).join('')}
+            </div>
+          `;
+        },
+        finalize: (finalText: string) => {
+          contentDiv.innerHTML = formatAssistantContent(finalText);
+        }
+      };
+    }
 
     function appendUserMessage(text: string) {
       const msgDiv = document.createElement('div');

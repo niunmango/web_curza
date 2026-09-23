@@ -1,10 +1,13 @@
 import os
 import time
+import json
+import re
 import logging
 from datetime import datetime
 from contextlib import asynccontextmanager
 from typing import List, Optional
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 import httpx
 from qdrant_client import QdrantClient
@@ -34,7 +37,7 @@ def get_embedding_model() -> TextEmbedding:
 def get_qdrant() -> QdrantClient:
     global qdrant_client
     if qdrant_client is None:
-        qdrant_client = QdrantClient(host=QDRANT_HOST, port=QDRANT_PORT, timeout=10.0)
+        qdrant_client = QdrantClient(host=QDRANT_HOST, port=QDRANT_PORT, timeout=10.0, check_compatibility=False)
     return qdrant_client
 
 def ensure_collection_exists(max_retries: int = 5, delay: float = 2.0) -> bool:
@@ -74,6 +77,7 @@ app = FastAPI(title="CURZAS RAG API", version="1.0", lifespan=lifespan)
 
 class ChatQuery(BaseModel):
     prompt: str = Field(..., min_length=2, max_length=1500, description="Consulta del usuario (entre 2 y 1500 caracteres)")
+    stream: Optional[bool] = False
 
 class IngestDocument(BaseModel):
     id: int
@@ -241,10 +245,94 @@ async def chat_rag(query: ChatQuery):
         f"Contexto institucional:\n{context}"
     )
 
+    # Si se solicita streaming (Server-Sent Events)
+    if query.stream:
+        async def event_generator():
+            # 1. Enviar fuentes y metadatos de inmediato
+            yield f"data: {json.dumps({'type': 'sources', 'sources': sources})}\n\n"
+
+            try:
+                timeout_config = httpx.Timeout(60.0, connect=5.0)
+                async with httpx.AsyncClient(timeout=timeout_config) as http_client:
+                    if OLLAMA_URL.rstrip("/").endswith("/v1"):
+                        endpoint = f"{OLLAMA_URL.rstrip('/')}/chat/completions"
+                        payload = {
+                            "model": OLLAMA_MODEL,
+                            "messages": [
+                                {"role": "system", "content": system_prompt},
+                                {"role": "user", "content": clean_prompt}
+                            ],
+                            "temperature": 0.2,
+                            "max_tokens": 400,
+                            "reasoning_effort": "none",
+                            "stream": True
+                        }
+                        async with http_client.stream("POST", endpoint, json=payload) as resp:
+                            if resp.status_code != 200:
+                                yield f"data: {json.dumps({'type': 'error', 'error': f'Error en modelo LLM ({resp.status_code})'})}\n\n"
+                                return
+
+                            async for line in resp.aiter_lines():
+                                if line.startswith("data: "):
+                                    raw = line[6:].strip()
+                                    if raw == "[DONE]":
+                                        break
+                                    try:
+                                        chunk_data = json.loads(raw)
+                                        delta = chunk_data.get("choices", [{}])[0].get("delta", {})
+                                        content = delta.get("content", "")
+                                        if content:
+                                            yield f"data: {json.dumps({'type': 'token', 'token': content})}\n\n"
+                                    except Exception:
+                                        continue
+                    else:
+                        endpoint = f"{OLLAMA_URL.rstrip('/')}/api/generate"
+                        payload = {
+                            "model": OLLAMA_MODEL,
+                            "prompt": clean_prompt,
+                            "system": system_prompt,
+                            "stream": True,
+                            "options": {
+                                "num_predict": 400,
+                                "temperature": 0.2
+                            }
+                        }
+                        async with http_client.stream("POST", endpoint, json=payload) as resp:
+                            if resp.status_code != 200:
+                                yield f"data: {json.dumps({'type': 'error', 'error': f'Error en modelo LLM ({resp.status_code})'})}\n\n"
+                                return
+
+                            async for line in resp.aiter_lines():
+                                if line.strip():
+                                    try:
+                                        chunk_data = json.loads(line)
+                                        token = chunk_data.get("response", "")
+                                        if token:
+                                            yield f"data: {json.dumps({'type': 'token', 'token': token})}\n\n"
+                                        if chunk_data.get("done", False):
+                                            break
+                                    except Exception:
+                                        continue
+
+                yield f"data: {json.dumps({'type': 'done'})}\n\n"
+            except Exception as exc:
+                logger.error(f"Error en streaming con LLM ({OLLAMA_URL}): {exc}")
+                yield f"data: {json.dumps({'type': 'error', 'error': str(exc)})}\n\n"
+
+        return StreamingResponse(
+            event_generator(),
+            media_type="text/event-stream",
+            headers={
+                "Cache-Control": "no-cache",
+                "Connection": "keep-alive",
+                "X-Accel-Buffering": "no"
+            }
+        )
+
+    # Respuesta tradicional JSON (sin streaming)
     try:
-        timeout_config = httpx.Timeout(90.0, connect=5.0)
+        timeout_config = httpx.Timeout(60.0, connect=5.0)
         async with httpx.AsyncClient(timeout=timeout_config) as http_client:
-            # Compatibilidad: si la URL incluye /v1 usa OpenAI-compatible chat completions
             if OLLAMA_URL.rstrip("/").endswith("/v1"):
                 endpoint = f"{OLLAMA_URL.rstrip('/')}/chat/completions"
                 payload = {
@@ -254,27 +342,37 @@ async def chat_rag(query: ChatQuery):
                         {"role": "user", "content": clean_prompt}
                     ],
                     "temperature": 0.2,
+                    "max_tokens": 400,
+                    "reasoning_effort": "none",
                     "stream": False
                 }
                 resp = await http_client.post(endpoint, json=payload)
                 resp.raise_for_status()
                 data = resp.json()
-                answer = data.get("choices", [{}])[0].get("message", {}).get("content", "Sin respuesta del modelo.")
+                raw_answer = data.get("choices", [{}])[0].get("message", {}).get("content", "Sin respuesta del modelo.")
             else:
                 endpoint = f"{OLLAMA_URL.rstrip('/')}/api/generate"
                 payload = {
                     "model": OLLAMA_MODEL,
                     "prompt": clean_prompt,
                     "system": system_prompt,
-                    "stream": False
+                    "stream": False,
+                    "options": {
+                        "num_predict": 400,
+                        "temperature": 0.2
+                    }
                 }
                 resp = await http_client.post(endpoint, json=payload)
                 resp.raise_for_status()
                 data = resp.json()
-                answer = data.get("response", "Sin respuesta del modelo.")
+                raw_answer = data.get("response", "Sin respuesta del modelo.")
+
+            answer = re.sub(r"<thought>.*?</thought>", "", raw_answer, flags=re.DOTALL).strip()
+            if not answer:
+                answer = raw_answer.strip()
 
             return {
-                "answer": answer.strip() if answer else "Sin respuesta del modelo.",
+                "answer": answer if answer else "Sin respuesta del modelo.",
                 "sources": sources
             }
     except Exception as exc:
