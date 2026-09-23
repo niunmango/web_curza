@@ -1,6 +1,6 @@
-# Portal Web CURZA - UNCo
+# Portal Web CURZAS - UNComa
 
-Modernización de la plataforma institucional del **Centro Universitario Regional Zona Atlántica (CURZA)** de la **Universidad Nacional del Comahue**.
+Modernización de la plataforma institucional del **Complejo Universitario Regional Zona Atlántica y Sur (CURZAS)** de la **Universidad Nacional del Comahue (UNComa)**.
 
 El proyecto implementa una arquitectura desacoplada, modular y de alto rendimiento que combina un frontend estático/SSR ultra veloz, un gestor de contenidos headless (CMS), un motor de búsqueda instantánea y un asistente inteligente basado en Retrieval-Augmented Generation (RAG).
 
@@ -117,7 +117,7 @@ Debe mostrar los 7 contenedores activos:
 - `curza_postgres`
 
 ### 3. Ejecutar la Ingestión Inicial de Contenidos
-Para popular Meilisearch y Qdrant con los contenidos históricos de CURZA:
+Para popular Meilisearch y Qdrant con los contenidos históricos de CURZAS:
 ```bash
 podman run --rm --network curza_network \
   -v $(pwd)/importer:/importer:ro \

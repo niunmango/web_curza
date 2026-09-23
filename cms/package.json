@@ -2,7 +2,7 @@
   "name": "curza-cms",
   "private": true,
   "version": "0.1.0",
-  "description": "Strapi CMS Headless para CURZA UNCo",
+  "description": "Strapi CMS Headless para CURZAS UNComa",
   "scripts": {
     "develop": "strapi develop",
     "start": "strapi start",

@@ -57,7 +57,7 @@ def ensure_collection_exists(max_retries: int = 5, delay: float = 2.0) -> bool:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logger.info("Iniciando servicio CURZA RAG...")
+    logger.info("Iniciando servicio CURZAS RAG...")
     try:
         get_embedding_model()
     except Exception as e:
@@ -67,9 +67,9 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.warning(f"No se pudo inicializar la colección en el arranque: {e}")
     yield
-    logger.info("Deteniendo servicio CURZA RAG...")
+    logger.info("Deteniendo servicio CURZAS RAG...")
 
-app = FastAPI(title="CURZA RAG API", version="1.0", lifespan=lifespan)
+app = FastAPI(title="CURZAS RAG API", version="1.0", lifespan=lifespan)
 
 class ChatQuery(BaseModel):
     prompt: str
@@ -163,7 +163,7 @@ async def chat_rag(query: ChatQuery):
     ]) if hits else "No se encontró contexto indexado."
 
     system_prompt = (
-        "Sos el asistente virtual institucional del CURZA (Complejo Universitario Regional Zona Atlántica y Sur - UNCo). "
+        "Sos el asistente virtual institucional del CURZAS (Complejo Universitario Regional Zona Atlántica y Sur - UNComa). "
         "Respondé a las preguntas de estudiantes, docentes y público de manera formal, concisa y basada estrictamente "
         "en el siguiente contexto provisto. Si la información solicitada no figura en el contexto, indicá que deben consultar "
         "en ventanilla de Alumnos, Bedelía o Secretaría de Bienestar.\n\n"

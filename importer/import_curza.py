@@ -29,6 +29,33 @@ def clean_html(raw_html: str) -> str:
     text = soup.get_text(separator=" ")
     return " ".join(text.split())
 
+def modernize_institutional_text(text: str) -> str:
+    """
+    Reemplaza referencias históricas a CURZA por CURZAS (Complejo Universitario Regional Zona Atlántica y Sur)
+    y acrónimo de UNCo por UNComa (Universidad Nacional del Comahue), preservando URLs y correos electrónicos.
+    """
+    if not text:
+        return ""
+    url_or_email_pattern = r'(https?://[^\s]+|[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)'
+    parts = re.split(url_or_email_pattern, text)
+    for i in range(len(parts)):
+        if re.match(url_or_email_pattern, parts[i]):
+            continue
+        p = parts[i]
+        p = re.sub(
+            r'Centro\s+Universitario\s+Regional\s+Zona\s+Atl[aá]ntica(?:\s+y\s+Sur)?',
+            'Complejo Universitario Regional Zona Atlántica y Sur',
+            p,
+            flags=re.IGNORECASE
+        )
+        p = re.sub(r'\bCURZA\b', 'CURZAS', p)
+        p = re.sub(r'\bCurza\b', 'Curzas', p)
+        p = re.sub(r'\bUNCo\b', 'UNComa', p)
+        p = re.sub(r'\bUNCO\b', 'UNComa', p)
+        p = re.sub(r'\bUnco\b', 'UNComa', p)
+        parts[i] = p
+    return "".join(parts)
+
 def fetch_all(endpoint: str, max_pages: int = 100):
     """Itera la paginación de la API de WordPress para traer todos los registros."""
     results = []
@@ -92,6 +119,10 @@ def main():
         raw_content = item.get("content", {}).get("rendered", "")
         clean_text = clean_html(raw_content)
         link = item.get("link", "")
+
+        # Modernizar referencias históricas a CURZAS y UNComa
+        clean_title = modernize_institutional_text(clean_title)
+        clean_text = modernize_institutional_text(clean_text)
 
         if len(clean_text) < 40 and len(clean_title) < 5:
             continue

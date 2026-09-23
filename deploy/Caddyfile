@@ -1,4 +1,4 @@
-# Caddyfile para CURZA UNCo
+# Caddyfile para CURZAS UNComa
 # En desarrollo/pruebas: SITE_ADDRESS=:8888 (HTTP directo)
 # En producción: SITE_ADDRESS=web.curza.uncoma.edu.ar (HTTPS automático con Let's Encrypt / ZeroSSL)
 
