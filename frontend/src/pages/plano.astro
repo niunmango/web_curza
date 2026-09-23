@@ -1,0 +1,83 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Plano Oficial del Campus - CURZAS UNComa">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <!-- Encabezado -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 pb-6 border-b border-slate-200">
+      <div>
+        <div class="inline-block text-xs font-bold text-[#F39200] uppercase tracking-wider mb-1">
+          Sede Viedma · Campus Universitario
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-[#003366] tracking-tight">
+          Plano y Distribución Edilicia CURZAS
+        </h1>
+        <p class="text-xs sm:text-sm text-slate-500 mt-1 max-w-2xl">
+          Monseñor Esandi y Ayacucho, Viedma, Río Negro. Mapa de ubicación de aulas, laboratorios, biblioteca, departamentos y servicios estudiantiles.
+        </p>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <a 
+          href="/images/planoCurza.svg" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          class="px-4 py-2 bg-[#003366] hover:bg-[#01579B] text-white text-xs font-semibold rounded-lg transition shadow-sm flex items-center gap-1.5 border border-[#002244]"
+        >
+          <svg class="w-4 h-4 text-[#FFBC7D]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+          <span>Abrir SVG Completo</span>
+        </a>
+        <a 
+          href="/images/planoCurza.svg" 
+          download="Plano_CURZAS.svg"
+          class="px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg transition shadow-sm border border-slate-200 flex items-center gap-1.5"
+        >
+          <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+          <span>Descargar</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Contenedor del Mapa / Plano Vectorial -->
+    <div class="bg-white rounded-2xl p-3 sm:p-5 border border-slate-200 shadow-sm mb-8">
+      <div class="w-full h-[600px] sm:h-[750px] rounded-xl overflow-hidden bg-slate-50 border border-slate-100 flex items-center justify-center relative">
+        <object 
+          data="/images/planoCurza.svg" 
+          type="image/svg+xml" 
+          class="w-full h-full"
+          title="Plano Oficial CURZAS"
+        >
+          <img src="/images/planoCurza.svg" alt="Plano CURZAS" class="w-full h-full object-contain" />
+        </object>
+      </div>
+      <div class="text-[11px] text-slate-400 text-center mt-2.5">
+        Podés interactuar, hacer zoom y moverte dentro del plano vectorial interactivo o abrirlo en pantalla completa.
+      </div>
+    </div>
+
+    <!-- Guía y Referencias de Espacios -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="bg-white rounded-xl p-5 border border-slate-200 border-t-4 border-t-[#003366] shadow-sm">
+        <h3 class="font-bold text-sm text-[#003366] mb-2">Aulas y Espacios de Docencia</h3>
+        <p class="text-xs text-slate-600 leading-relaxed">
+          Aulas comunes (1 a 12), Aula Magna, Auditorio, Gabinete de Informática y salas de postgrado ubicadas en las alas norte y central.
+        </p>
+      </div>
+
+      <div class="bg-white rounded-xl p-5 border border-slate-200 border-t-4 border-t-[#F39200] shadow-sm">
+        <h3 class="font-bold text-sm text-[#003366] mb-2">Biblioteca y Estudio</h3>
+        <p class="text-xs text-slate-600 leading-relaxed">
+          Biblioteca Central y Regional del CURZAS, salas de lectura silenciosa, hemeroteca y préstamos de material bibliográfico.
+        </p>
+      </div>
+
+      <div class="bg-white rounded-xl p-5 border border-slate-200 border-t-4 border-t-[#003366] shadow-sm">
+        <h3 class="font-bold text-sm text-[#003366] mb-2">Administración y Estudiantes</h3>
+        <p class="text-xs text-slate-600 leading-relaxed">
+          Departamento de Alumnos, Bedelía, Decanato, Secretaría Académica, Centro de Estudiantes y buffet/comedor universitario.
+        </p>
+      </div>
+    </div>
+  </div>
+</Layout>

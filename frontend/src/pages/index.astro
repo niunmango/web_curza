@@ -3,37 +3,37 @@ import Layout from '../layouts/Layout.astro';
 ---
 
 <Layout title="Portal Institucional CURZAS - Universidad Nacional del Comahue">
-  <!-- Hero Section Institucional UNComa con Fondo e Isotipo Oficial -->
-  <section class="relative bg-gradient-to-b from-[#002B54] via-[#003366] to-[#002244] text-white py-14 sm:py-16 px-4 sm:px-6 lg:px-8 border-b-4 border-[#F39200] overflow-hidden">
+  <!-- Hero Section Institucional UNComa con Fondo e Isotipo Oficial Grande -->
+  <section class="relative bg-gradient-to-b from-[#002B54] via-[#003366] to-[#002244] text-white pt-6 sm:pt-8 pb-12 sm:pb-14 px-4 sm:px-6 lg:px-8 border-b-4 border-[#F39200] overflow-hidden">
     <!-- Fondo Institucional Sutil con mix-blend -->
     <div class="absolute inset-0 z-0 opacity-15 mix-blend-luminosity pointer-events-none">
       <img src="/images/fondo_ingreso.jpg" alt="" class="w-full h-full object-cover object-center" />
     </div>
 
     <div class="relative z-10 max-w-4xl mx-auto text-center">
-      <!-- Isotipo / Escudo Oficial CURZAS -->
-      <div class="flex justify-center mb-4">
-        <a href="/" class="inline-block transform hover:scale-105 transition-transform duration-200">
+      <!-- Isotipo / Escudo Oficial CURZAS de Gran Tamaño y Legibilidad -->
+      <div class="flex justify-center mb-3">
+        <a href="/" class="inline-block transform hover:scale-105 transition-transform duration-200" title="Complejo Universitario Regional Zona Atlántica y Sur">
           <img 
             src="/images/CURZAS.png" 
-            alt="Escudo Institucional CURZAS - Universidad Nacional del Comahue" 
-            class="h-20 sm:h-24 w-auto object-contain drop-shadow-lg"
-            width="96"
-            height="96"
+            alt="Escudo Oficial CURZAS - Universidad Nacional del Comahue" 
+            class="h-36 sm:h-44 md:h-48 w-auto object-contain drop-shadow-2xl"
+            width="192"
+            height="192"
           />
         </a>
       </div>
 
-      <div class="inline-flex items-center gap-2 bg-white/10 border border-white/15 rounded-full px-4 py-1 text-xs font-semibold tracking-wider uppercase mb-4 text-[#FFBC7D]">
+      <div class="inline-flex items-center gap-2 bg-white/10 border border-white/15 rounded-full px-4 py-1 text-xs font-semibold tracking-wider uppercase mb-3 text-[#FFBC7D]">
         <span>UNComa</span>
         <span class="text-white/40">·</span>
         <span>Universidad Nacional del Comahue</span>
       </div>
-      <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight mb-4 text-white leading-tight">
+      <h1 class="text-2xl sm:text-4xl md:text-5xl font-extrabold tracking-tight mb-3 text-white leading-tight">
         Complejo Universitario Regional<br class="hidden sm:inline" />
         <span class="text-[#FFBC7D]">Zona Atlántica y Sur</span>
       </h1>
-      <p class="text-sm sm:text-base text-slate-200 mb-8 max-w-2xl mx-auto leading-relaxed">
+      <p class="text-xs sm:text-base text-slate-200 mb-7 max-w-2xl mx-auto leading-relaxed">
         Plataforma oficial de información académica, carreras de grado y posgrado, trámites estudiantiles y motor de búsqueda institucional.
       </p>
 
@@ -69,9 +69,87 @@ import Layout from '../layouts/Layout.astro';
     </div>
   </section>
 
-  <!-- Banner Asistente Virtual Institucional -->
-  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6">
-    <div class="bg-white rounded-xl p-5 sm:p-7 shadow-lg border border-slate-200/80 border-l-4 border-l-[#F39200] flex flex-col md:flex-row items-center justify-between gap-6">
+  <!-- Sección Central Destacada: SIU Guaraní, PEDCO y Plano CURZAS -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 sm:mt-10">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- Tarjeta Central 1: SIU Guaraní -->
+      <a 
+        href="http://siucurza.uncoma.edu.ar/" 
+        target="_blank" 
+        rel="noopener noreferrer" 
+        class="bg-white rounded-xl p-6 border border-slate-200 border-t-4 border-t-[#0071A1] shadow-sm hover:shadow-md hover:border-[#0071A1] transition group flex flex-col justify-between"
+      >
+        <div>
+          <div class="h-14 flex items-center mb-3">
+            <img src="/images/siu.png" alt="SIU Guaraní" class="max-h-12 w-auto object-contain group-hover:scale-105 transition-transform" />
+          </div>
+          <h2 class="text-lg font-bold text-[#003366] group-hover:text-[#0071A1] transition mb-1.5">
+            SIU Guaraní CURZAS
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-600 leading-relaxed mb-4">
+            Gestión académica: inscripciones a cursadas, mesas de exámenes finales, historia académica y constancias regulares.
+          </p>
+        </div>
+        <div class="text-xs font-bold text-[#0071A1] group-hover:translate-x-1 transition-transform flex items-center gap-1.5 uppercase tracking-wide">
+          <span>Ingresar a SIU Guaraní</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+        </div>
+      </a>
+
+      <!-- Tarjeta Central 2: PEDCO (Campus Virtual) -->
+      <a 
+        href="https://pedco.uncoma.edu.ar/course/index.php?categoryid=6" 
+        target="_blank" 
+        rel="noopener noreferrer" 
+        class="bg-white rounded-xl p-6 border border-slate-200 border-t-4 border-t-[#003366] shadow-sm hover:shadow-md hover:border-[#003366] transition group flex flex-col justify-between"
+      >
+        <div>
+          <div class="h-14 flex items-center mb-3">
+            <img src="/images/pedco.png" alt="PEDCO" class="max-h-12 w-auto object-contain group-hover:scale-105 transition-transform" />
+          </div>
+          <h2 class="text-lg font-bold text-[#003366] group-hover:text-[#01579B] transition mb-1.5">
+            PEDCO · Campus Virtual
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-600 leading-relaxed mb-4">
+            Plataforma de Educación a Distancia: acceso a aulas virtuales de las materias, foros, material de estudio y entregas.
+          </p>
+        </div>
+        <div class="text-xs font-bold text-[#003366] group-hover:translate-x-1 transition-transform flex items-center gap-1.5 uppercase tracking-wide">
+          <span>Ingresar a PEDCO CURZAS</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+        </div>
+      </a>
+
+      <!-- Tarjeta Central 3: Plano Oficial CURZAS -->
+      <a 
+        href="/plano" 
+        class="bg-white rounded-xl p-6 border border-slate-200 border-t-4 border-t-[#F39200] shadow-sm hover:shadow-md hover:border-[#F39200] transition group flex flex-col justify-between"
+      >
+        <div>
+          <div class="h-14 flex items-center mb-3 gap-3">
+            <div class="w-12 h-12 rounded-lg bg-[#FFF8EE] text-[#F39200] flex items-center justify-center flex-shrink-0 border border-[#F39200]/20">
+              <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
+            </div>
+            <span class="text-xs font-bold uppercase tracking-wider text-[#F39200] bg-[#FFF8EE] px-2.5 py-1 rounded">Sede Viedma</span>
+          </div>
+          <h2 class="text-lg font-bold text-[#003366] group-hover:text-[#F39200] transition mb-1.5">
+            Plano CURZAS
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-600 leading-relaxed mb-4">
+            Mapa interactivo del campus: distribución de aulas, laboratorios, biblioteca, departamentos y dependencias.
+          </p>
+        </div>
+        <div class="text-xs font-bold text-[#F39200] group-hover:translate-x-1 transition-transform flex items-center gap-1.5 uppercase tracking-wide">
+          <span>Ver Mapa Interactivo</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- Banner Asistente Virtual Institucional con Separación Limpia -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 mb-10">
+    <div class="bg-white rounded-xl p-5 sm:p-7 shadow-md border border-slate-200/90 border-l-4 border-l-[#F39200] flex flex-col md:flex-row items-center justify-between gap-6">
       <div class="flex items-start gap-4">
         <div class="w-12 h-12 rounded-lg bg-[#F0F5FA] text-[#003366] flex items-center justify-center flex-shrink-0 border border-slate-200">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
@@ -79,7 +157,7 @@ import Layout from '../layouts/Layout.astro';
         <div>
           <div class="flex items-center gap-2">
             <h3 class="text-lg font-bold text-[#003366]">Asistente Virtual Institucional</h3>
-            <span class="text-[10px] font-bold uppercase tracking-wider bg-[#F0F5FA] text-[#01579B] border border-blue-200 px-2 py-0.5 rounded">CURZAS</span>
+            <span class="text-[10px] font-bold uppercase tracking-wider bg-[#F0F5FA] text-[#01579B] border border-blue-200 px-2 py-0.5 rounded">CURZAS IA</span>
           </div>
           <p class="text-xs sm:text-sm text-slate-600 mt-1 max-w-2xl leading-relaxed">
             Realizá preguntas sobre planes de estudio, calendarios académicos, correlatividades, constancias e inscripciones. Respuestas instantáneas orientadas en la normativa oficial.
