@@ -22,7 +22,10 @@
     }
 
     # Panel de Administración CMS y API Strapi
-    handle /admin* {
+    @strapi_admin {
+        path /admin /admin/*
+    }
+    handle @strapi_admin {
         reverse_proxy strapi:1337
     }
     handle /api/cms/* {

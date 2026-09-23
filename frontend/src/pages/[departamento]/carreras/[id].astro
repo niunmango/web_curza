@@ -1,0 +1,200 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import departamentos from '../../../data/departamentos.json';
+
+export function getStaticPaths() {
+  const paths: any[] = [];
+  for (const depto of departamentos) {
+    for (const carrera of depto.carreras) {
+      paths.push({
+        params: { 
+          departamento: depto.slug, 
+          id: String(carrera.id) 
+        },
+        props: { depto, carrera },
+      });
+    }
+  }
+  return paths;
+}
+
+const { depto, carrera } = Astro.props;
+---
+
+<Layout 
+  title={`${carrera.nombre} - ${depto.nombre_corto} | CURZAS UNComa`}
+  description={`Información de la carrera ${carrera.nombre} dictada en el ${depto.nombre} del CURZAS - Universidad Nacional del Comahue. Plan de estudios, asignaturas y perfil profesional.`}
+>
+  <!-- Hero Banner de la Carrera -->
+  <section class="bg-gradient-to-b from-[#002B54] via-[#003366] to-[#002244] text-white pt-10 pb-14 px-4 sm:px-6 lg:px-8 border-b-4 border-[#F39200]">
+    <div class="max-w-5xl mx-auto">
+      <!-- Breadcrumbs -->
+      <nav class="flex items-center gap-2 text-xs text-slate-300 mb-6">
+        <a href="/" class="hover:text-white transition">Inicio</a>
+        <span class="text-white/40">/</span>
+        <a href="/#departamentos" class="hover:text-white transition">Departamentos</a>
+        <span class="text-white/40">/</span>
+        <a href={`/${depto.slug}`} class="hover:text-white transition">{depto.nombre_corto}</a>
+        <span class="text-white/40">/</span>
+        <span class="text-[#FFBC7D] font-medium truncate">{carrera.nombre}</span>
+      </nav>
+
+      <div class="inline-flex items-center gap-2 bg-white/10 border border-white/15 rounded-full px-3.5 py-1 text-xs font-semibold uppercase tracking-wider text-[#FFBC7D] mb-3">
+        <span>{depto.nombre_corto}</span>
+        <span class="text-white/40">·</span>
+        <span>{carrera.es_titulo_intermedio ? 'Título Intermedio' : 'Carrera de Grado / Pregrado'}</span>
+      </div>
+
+      <h1 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight mb-4">
+        {carrera.nombre}
+      </h1>
+
+      <div class="flex flex-wrap items-center gap-3 text-xs">
+        {carrera.duracion_total_anos > 0 && (
+          <span class="bg-[#FFF8EE] text-[#F39200] border border-[#F39200]/30 font-bold px-3 py-1 rounded-md">
+            Duración: {carrera.duracion_total_anos} {carrera.duracion_total_anos === 1 ? 'año' : 'años'}
+          </span>
+        )}
+        {carrera.modalidades && carrera.modalidades.map((m: string) => (
+          <span class="bg-white/10 text-white border border-white/20 px-3 py-1 rounded-md">
+            Modalidad: {m} (Sede Viedma)
+          </span>
+        ))}
+        {carrera.plan_vigente && (
+          <span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-3 py-1 rounded-md font-medium">
+            Plan Vigente: Ord. {carrera.plan_vigente.ordenanza}
+          </span>
+        )}
+      </div>
+    </div>
+  </section>
+
+  <!-- Contenido de la Carrera -->
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 space-y-10">
+    
+    <!-- Botones de Acción / Descargas Rápidas -->
+    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-4">
+      <div class="flex flex-wrap items-center gap-3">
+        {carrera.brochure && (
+          <a 
+            href={carrera.brochure} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            class="px-5 py-2.5 bg-[#003366] hover:bg-[#01579B] text-white text-xs sm:text-sm font-semibold rounded-lg transition shadow-sm flex items-center gap-2"
+          >
+            <svg class="w-4 h-4 text-[#FFBC7D]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+            <span>Descargar Folleto Oficial (PDF)</span>
+          </a>
+        )}
+
+        {carrera.plan_vigente && carrera.plan_vigente.archivo && (
+          <a 
+            href={carrera.plan_vigente.archivo} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            class="px-5 py-2.5 bg-white hover:bg-slate-50 text-[#003366] border border-slate-300 text-xs sm:text-sm font-semibold rounded-lg transition flex items-center gap-2"
+          >
+            <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+            <span>Descargar Plan de Estudios Completo (PDF)</span>
+          </a>
+        )}
+      </div>
+
+      <a 
+        href={`/chat?q=¿Cuáles son los requisitos de ingreso y materias de ${carrera.nombre}?`}
+        class="text-xs font-bold text-[#0071A1] hover:text-[#003366] flex items-center gap-1.5"
+      >
+        <span>Preguntar al Asistente IA sobre esta carrera</span>
+        &rarr;
+      </a>
+    </div>
+
+    <!-- Perfil del Egresado y Alcance -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {carrera.perfil && (
+        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm border-t-4 border-t-[#003366]">
+          <h2 class="text-base font-bold text-[#003366] mb-3 flex items-center gap-2">
+            <svg class="w-5 h-5 text-[#0071A1]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+            <span>Perfil del Egresado / Graduado</span>
+          </h2>
+          <div class="text-xs sm:text-sm text-slate-600 leading-relaxed space-y-2" set:html={carrera.perfil} />
+        </div>
+      )}
+
+      {carrera.alcance && (
+        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm border-t-4 border-t-[#F39200]">
+          <h2 class="text-base font-bold text-[#003366] mb-3 flex items-center gap-2">
+            <svg class="w-5 h-5 text-[#F39200]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+            <span>Alcances del Título y Salida Laboral</span>
+          </h2>
+          <div class="text-xs sm:text-sm text-slate-600 leading-relaxed space-y-2" set:html={carrera.alcance} />
+        </div>
+      )}
+    </div>
+
+    <!-- Plan de Estudios y Malla Curricular -->
+    {carrera.asignaturas && carrera.asignaturas.length > 0 && (
+      <section class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 sm:p-8">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 mb-6 border-b border-slate-200 gap-2">
+          <div>
+            <span class="text-xs font-bold text-[#F39200] uppercase tracking-wider block">Plan de Estudios</span>
+            <h3 class="text-xl font-bold text-[#003366]">Estructura Curricular y Asignaturas</h3>
+          </div>
+          <span class="text-xs font-semibold bg-[#F0F5FA] text-[#003366] px-3 py-1 rounded-full border border-blue-200 self-start sm:self-auto">
+            {carrera.asignaturas.length} Asignaturas
+          </span>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs sm:text-sm text-slate-700">
+            <thead class="bg-[#F8FAFC] text-[#003366] font-bold text-xs uppercase tracking-wider border-b border-slate-200">
+              <tr>
+                <th class="py-3 px-4 w-12 text-center">#</th>
+                <th class="py-3 px-4">Asignatura / Espacio Curricular</th>
+                <th class="py-3 px-4 w-28 text-center">Código</th>
+                <th class="py-3 px-4 w-24 text-center">Carga Horaria</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              {carrera.asignaturas.map((asig: any, idx: number) => (
+                <tr class="hover:bg-slate-50 transition">
+                  <td class="py-3 px-4 text-center font-bold text-slate-400 text-xs">
+                    {idx + 1}
+                  </td>
+                  <td class="py-3 px-4 font-medium text-slate-900">
+                    {asig.nombre}
+                  </td>
+                  <td class="py-3 px-4 text-center text-slate-500 font-mono text-xs">
+                    {asig.codigo || '-'}
+                  </td>
+                  <td class="py-3 px-4 text-center text-slate-500 text-xs">
+                    {asig.horas ? `${asig.horas} hs` : '-'}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    )}
+
+    <!-- Volver al Departamento -->
+    <div class="pt-6 border-t border-slate-200 flex items-center justify-between">
+      <a 
+        href={`/${depto.slug}`}
+        class="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-[#003366] hover:text-[#01579B] transition"
+      >
+        &larr;
+        <span>Volver a {depto.nombre}</span>
+      </a>
+
+      <a 
+        href="/#departamentos"
+        class="inline-flex items-center gap-2 text-xs font-semibold text-slate-500 hover:text-slate-800 transition"
+      >
+        <span>Ver todos los departamentos</span>
+      </a>
+    </div>
+
+  </div>
+</Layout>

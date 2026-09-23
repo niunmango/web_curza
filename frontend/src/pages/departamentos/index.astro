@@ -1,0 +1,109 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import departamentos from '../../data/departamentos.json';
+---
+
+<Layout 
+  title="Departamentos Académicos - CURZAS | Universidad Nacional del Comahue"
+  description="Departamentos académicos y propuesta formativa del Complejo Universitario Regional Zona Atlántica y Sur (CURZAS - UNComa). Carreras de grado, profesorados y tecnicaturas."
+>
+  <!-- Hero Section -->
+  <section class="bg-gradient-to-b from-[#002B54] via-[#003366] to-[#002244] text-white pt-10 pb-14 px-4 sm:px-6 lg:px-8 border-b-4 border-[#F39200]">
+    <div class="max-w-7xl mx-auto">
+      <nav class="flex items-center gap-2 text-xs text-slate-300 mb-6">
+        <a href="/" class="hover:text-white transition">Inicio</a>
+        <span class="text-white/40">/</span>
+        <span class="text-[#FFBC7D] font-medium">Departamentos Académicos</span>
+      </nav>
+
+      <div class="max-w-3xl">
+        <div class="inline-flex items-center gap-2 bg-white/10 border border-white/15 rounded-full px-3.5 py-1 text-xs font-semibold uppercase tracking-wider text-[#FFBC7D] mb-3">
+          <span>Estructura Universitaria</span>
+          <span class="text-white/40">·</span>
+          <span>Sede Viedma</span>
+        </div>
+        <h1 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight mb-3">
+          Departamentos Académicos
+        </h1>
+        <p class="text-sm sm:text-base text-slate-200 leading-relaxed">
+          Conocé las 7 unidades académicas que articulan la docencia, investigación y extensión en el CURZAS, con su oferta formativa de carreras de grado, posgrado y pregrado.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Lista de Departamentos -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {departamentos.map((depto) => {
+        const carrerasGrado = depto.carreras.filter((c: any) => !c.es_titulo_intermedio);
+        return (
+          <div class="bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between overflow-hidden group">
+            <div class="p-6">
+              <!-- Header Tarjeta -->
+              <div class="flex items-center justify-between gap-3 mb-4">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-[#01579B] bg-[#F0F5FA] border border-blue-200 px-2.5 py-0.5 rounded">
+                  {depto.badge}
+                </span>
+                <span class="text-xs font-semibold text-slate-400">
+                  {carrerasGrado.length} {carrerasGrado.length === 1 ? 'Carrera' : 'Carreras'}
+                </span>
+              </div>
+
+              <h2 class="text-lg font-bold text-[#003366] group-hover:text-[#01579B] transition mb-2">
+                <a href={`/${depto.slug}`}>
+                  {depto.nombre}
+                </a>
+              </h2>
+
+              <p class="text-xs text-slate-500 leading-relaxed mb-4 line-clamp-3">
+                {depto.descripcion}
+              </p>
+
+              <!-- Lista de Carreras -->
+              <div class="space-y-1.5 pt-3 border-t border-slate-100 mb-4">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+                  Carreras que dicta:
+                </span>
+                {carrerasGrado.map((c: any) => (
+                  <a 
+                    href={`/${depto.slug}/carreras/${c.id}`}
+                    class="block text-xs font-medium text-slate-700 hover:text-[#0071A1] transition truncate"
+                  >
+                    • {c.nombre} <span class="text-slate-400 font-normal">({c.duracion_total_anos} a.)</span>
+                  </a>
+                ))}
+              </div>
+
+              <!-- Autoridad y Contacto -->
+              <div class="bg-slate-50 p-3 rounded-lg text-xs space-y-1">
+                <div class="flex items-center justify-between">
+                  <span class="text-slate-400">{depto.cargo || 'Dirección'}:</span>
+                  <span class="font-semibold text-slate-800">{depto.director}</span>
+                </div>
+                {depto.email && (
+                  <div class="truncate text-slate-500 pt-0.5">
+                    <a href={`mailto:${depto.email}`} class="hover:text-[#0071A1] transition truncate block">
+                      {depto.email}
+                    </a>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <!-- Footer Tarjeta con Botón -->
+            <div class="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+              <a 
+                href={`/${depto.slug}`}
+                class="w-full py-2 bg-[#003366] hover:bg-[#01579B] text-white text-xs font-semibold rounded-lg text-center transition flex items-center justify-center gap-1.5 shadow-sm"
+              >
+                <span>Ver Departamento y Planes</span>
+                &rarr;
+              </a>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  </div>
+</Layout>

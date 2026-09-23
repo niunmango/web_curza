@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import departamentos from '../data/departamentos.json';
 ---
 
 <Layout title="Portal Institucional CURZAS - Universidad Nacional del Comahue">
@@ -155,6 +156,109 @@ import Layout from '../layouts/Layout.astro';
         <span>Consultar al Asistente IA</span>
         <svg class="w-4 h-4 text-[#FFBC7D]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
       </a>
+    </div>
+  </section>
+
+  <!-- Sección Departamentos Académicos -->
+  <section id="departamentos" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 scroll-mt-20">
+    <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 pb-4 border-b border-slate-200 gap-4">
+      <div>
+        <div class="inline-flex items-center gap-2 text-xs font-bold text-[#F39200] uppercase tracking-widest mb-1.5">
+          <span>Estructura Universitaria</span>
+          <span class="text-slate-300">·</span>
+          <span>Sede Viedma</span>
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-[#003366] tracking-tight">
+          Departamentos Académicos
+        </h2>
+        <p class="text-slate-600 text-xs sm:text-sm mt-1 max-w-2xl leading-relaxed">
+          Propuesta formativa del CURZAS organizada por áreas disciplinares. Consultá las carreras de grado, tecnicaturas, autoridades y planes de estudio.
+        </p>
+      </div>
+
+      <a 
+        href="/departamentos" 
+        class="inline-flex items-center gap-1.5 text-xs font-bold text-[#0071A1] hover:text-[#003366] uppercase tracking-wider whitespace-nowrap self-start md:self-auto group"
+      >
+        <span>Ver todos los departamentos y planes</span>
+        <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
+      </a>
+    </div>
+
+    <!-- Grilla de Departamentos -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {departamentos.map((depto) => {
+        const carrerasGrado = depto.carreras.filter((c: any) => !c.es_titulo_intermedio);
+        return (
+          <div class="bg-white rounded-xl border border-slate-200/90 shadow-sm hover:shadow-md hover:border-[#0071A1]/40 transition flex flex-col justify-between overflow-hidden group">
+            <div class="p-6">
+              <!-- Header de la tarjeta del departamento -->
+              <div class="flex items-center justify-between gap-3 mb-3">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-[#003366] bg-[#F0F5FA] border border-blue-200/80 px-2.5 py-0.5 rounded">
+                  {depto.badge}
+                </span>
+                <span class="text-[11px] font-semibold text-slate-400">
+                  {carrerasGrado.length} {carrerasGrado.length === 1 ? 'Carrera' : 'Carreras'}
+                </span>
+              </div>
+
+              <h3 class="text-lg font-bold text-[#003366] group-hover:text-[#0071A1] transition mb-2 leading-snug">
+                <a href={`/${depto.slug}`}>
+                  {depto.nombre}
+                </a>
+              </h3>
+
+              <p class="text-xs text-slate-500 leading-relaxed mb-4 line-clamp-2">
+                {depto.descripcion}
+              </p>
+
+              <!-- Lista rápida de Carreras -->
+              <div class="pt-3 border-t border-slate-100 mb-4 space-y-1.5">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+                  Carreras:
+                </span>
+                {carrerasGrado.map((c: any) => (
+                  <a 
+                    href={`/${depto.slug}/carreras/${c.id}`} 
+                    class="flex items-center justify-between text-xs text-slate-700 hover:text-[#0071A1] transition group/carrera py-0.5"
+                  >
+                    <span class="truncate font-medium group-hover/carrera:underline">• {c.nombre}</span>
+                    {c.duracion_total_anos > 0 && (
+                      <span class="text-[10px] text-slate-400 flex-shrink-0 ml-1.5 font-normal bg-slate-50 px-1.5 py-0.5 rounded border border-slate-100">
+                        {c.duracion_total_anos} a.
+                      </span>
+                    )}
+                  </a>
+                ))}
+              </div>
+
+              <!-- Autoridad de contacto -->
+              <div class="bg-slate-50/80 p-2.5 rounded-lg text-[11px] text-slate-600 flex items-center justify-between border border-slate-100">
+                <div class="truncate mr-2">
+                  <span class="text-slate-400 block text-[9px] uppercase font-bold tracking-wider">{depto.cargo || 'Dirección'}:</span>
+                  <span class="font-bold text-slate-800 truncate block">{depto.director}</span>
+                </div>
+                {depto.email && (
+                  <a href={`mailto:${depto.email}`} class="text-[#0071A1] hover:text-[#003366] flex-shrink-0 p-1" title={depto.email}>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                  </a>
+                )}
+              </div>
+            </div>
+
+            <!-- Botón de acción al pie de la tarjeta -->
+            <div class="p-4 bg-slate-50 border-t border-slate-100">
+              <a 
+                href={`/${depto.slug}`}
+                class="w-full py-2 px-3 bg-white hover:bg-[#003366] text-[#003366] hover:text-white border border-slate-200 hover:border-[#003366] text-xs font-bold rounded-lg text-center transition flex items-center justify-center gap-1.5 shadow-sm"
+              >
+                <span>Ver Departamento y Carreras</span>
+                &rarr;
+              </a>
+            </div>
+          </div>
+        );
+      })}
     </div>
   </section>
 
