@@ -170,18 +170,18 @@ async def chat_rag(query: ChatQuery):
 
     raw_hits = []
     try:
-        # Recuperar hasta 8 candidatos para poder re-ponderar por antigüedad
+        # Recuperar hasta 35 candidatos para poder re-ponderar por antigüedad sin descartar documentos institucionales
         if hasattr(client, "search"):
             raw_hits = client.search(
                 collection_name=COLLECTION_NAME,
                 query_vector=query_vector,
-                limit=8
+                limit=35
             )
         elif hasattr(client, "query_points"):
             res = client.query_points(
                 collection_name=COLLECTION_NAME,
                 query=query_vector,
-                limit=8
+                limit=35
             )
             raw_hits = res.points
     except Exception as e:
@@ -208,9 +208,9 @@ async def chat_rag(query: ChatQuery):
                 pass
         scored_hits.append((score, is_old, date_str, h))
 
-    # Ordenar por score re-ponderado descendente y tomar los mejores 3
+    # Ordenar por score re-ponderado descendente y tomar los mejores 4 candidatos
     scored_hits.sort(key=lambda x: x[0], reverse=True)
-    top_candidates = scored_hits[:3]
+    top_candidates = scored_hits[:4]
 
     context_parts = []
     sources = []

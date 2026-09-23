@@ -121,6 +121,70 @@ def build_documents(data_path: str):
             "date": today_iso
         })
 
+    # 2.b Documentos específicos y focalizados de Horarios de Atención, Apertura y Contacto
+    contact_base_id = 98300
+    master_contact_lines = [
+        "Guía oficial de horarios de atención al público, días de apertura, autoridades y vías de contacto de los Departamentos Académicos del CURZAS (UNComa):",
+        ""
+    ]
+    for idx, d in enumerate(departamentos, start=1):
+        c_id = contact_base_id + idx
+        d_slug = d["slug"]
+        d_url = f"/{d_slug}"
+        d_info = clean_html(d.get("informacion_html", ""))
+        carreras_nombres = ", ".join([c["nombre"] for c in d.get("carreras", [])])
+
+        contact_doc_content = (
+            f"Horarios de atención al público, días de apertura, canales de contacto y autoridades del {d['nombre']} del CURZAS (Universidad Nacional del Comahue).\n\n"
+            f"Datos de contacto, días, horarios y autoridades:\n{d_info}\n\n"
+            f"Carreras del departamento: {carreras_nombres}.\n"
+            f"Dirección institucional: Monseñor Esandi y Ayacucho, Viedma, Río Negro.\n"
+            f"Página web del departamento: {d_url}."
+        )
+
+        docs_rag.append({
+            "id": c_id,
+            "title": f"Horarios de Atención, Días de Apertura y Contacto: {d['nombre']}",
+            "content": contact_doc_content,
+            "url": d_url,
+            "date": today_iso
+        })
+
+        docs_meili.append({
+            "id": f"contacto_{d_slug}",
+            "title": f"Horarios de Atención y Contacto: {d['nombre']}",
+            "content": contact_doc_content,
+            "content_html": "<p>" + contact_doc_content.replace("\n\n", "</p><p>").replace("\n", "<br>") + "</p>",
+            "url": d_url,
+            "original_url": f"https://web.curza.uncoma.edu.ar/{d_slug}",
+            "type": "page",
+            "date": today_iso
+        })
+
+        master_contact_lines.append(f"• {d['nombre']} ({d_url}):")
+        master_contact_lines.append(f"   {d_info}")
+        master_contact_lines.append("")
+
+    # Directorio Maestro de Contactos y Horarios
+    master_contact_text = "\n".join(master_contact_lines)
+    docs_rag.append({
+        "id": 98010,
+        "title": "Directorio de Horarios de Atención, Apertura y Contactos de Departamentos - CURZAS",
+        "content": master_contact_text,
+        "url": "/departamentos",
+        "date": today_iso
+    })
+    docs_meili.append({
+        "id": "page_directorio_horarios_contacto",
+        "title": "Directorio de Horarios de Atención y Contactos de Departamentos - CURZAS",
+        "content": master_contact_text,
+        "content_html": "<p>" + master_contact_text.replace("\n\n", "</p><p>").replace("\n", "<br>") + "</p>",
+        "url": "/departamentos",
+        "original_url": "https://web.curza.uncoma.edu.ar/departamentos",
+        "type": "page",
+        "date": today_iso
+    })
+
     # 3. Documentos individuales por cada Carrera
     carr_base_id = 98200
     carr_counter = 1
