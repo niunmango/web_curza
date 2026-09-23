@@ -32,6 +32,7 @@ if (id) {
 
 const title = doc ? `${doc.title} - CURZAS UNComa` : 'Documento no encontrado - CURZAS UNComa';
 const paragraphs = doc?.content ? doc.content.split(/\n\s*\n/).filter((p: string) => p.trim().length > 0) : [];
+const isOld = doc?.date && ((Date.now() - new Date(doc.date).getTime()) > 365 * 24 * 60 * 60 * 1000);
 ---
 
 <Layout title={title}>
@@ -48,7 +49,7 @@ const paragraphs = doc?.content ? doc.content.split(/\n\s*\n/).filter((p: string
     {doc ? (
       <article class="bg-white rounded-2xl p-6 sm:p-10 border border-gray-200 shadow-sm">
         <header class="mb-8 pb-6 border-b border-gray-100">
-          <div class="flex items-center gap-2 mb-3">
+          <div class="flex items-center gap-2 mb-3 flex-wrap">
             <span class={`text-xs px-2.5 py-1 rounded-full font-semibold border ${
               doc.type === 'page' 
                 ? 'bg-blue-50 text-blue-700 border-blue-200' 
@@ -56,6 +57,13 @@ const paragraphs = doc?.content ? doc.content.split(/\n\s*\n/).filter((p: string
             }`}>
               {doc.type === 'page' ? 'Página Institucional' : 'Novedad / Noticia'}
             </span>
+
+            {isOld && (
+              <span class="text-xs px-2.5 py-1 rounded-full font-semibold bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                Contenido antiguo
+              </span>
+            )}
 
             {doc.date && (
               <span class="text-xs text-gray-400">
@@ -71,6 +79,15 @@ const paragraphs = doc?.content ? doc.content.split(/\n\s*\n/).filter((p: string
           <h1 class="text-2xl sm:text-4xl font-extrabold text-gray-900 leading-tight">
             {doc.title}
           </h1>
+
+          {isOld && (
+            <div class="mt-4 p-3.5 bg-amber-50/80 border border-amber-200 rounded-xl text-xs text-amber-800 flex items-start gap-2.5">
+              <svg class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              <span>
+                <strong>Aviso de publicación histórica:</strong> Este artículo fue publicado hace más de un año. Las fechas, aranceles, normativas o convocatorias mencionadas podrían no encontrarse vigentes actualmente.
+              </span>
+            </div>
+          )}
         </header>
 
         <!-- Contenido principal -->

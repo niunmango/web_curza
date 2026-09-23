@@ -135,7 +135,8 @@ def main():
             "title": clean_title,
             "content": clean_text[:4000],  # Límite por fragmento para embeddings
             "url": local_url,              # Enlace directo al contenido local del portal
-            "original_url": link
+            "original_url": link,
+            "date": item.get("date", "")
         }
         payload_docs.append(doc_entry)
 
@@ -184,6 +185,23 @@ def main():
             f"{MEILI_URL.rstrip('/')}/indexes",
             headers=headers,
             json={"uid": "curza_content", "primaryKey": "id"},
+            timeout=15
+        )
+        # Configurar ordenamiento por fecha y ranking para priorizar artículos nuevos
+        requests.patch(
+            f"{MEILI_URL.rstrip('/')}/indexes/curza_content/settings",
+            headers=headers,
+            json={
+                "sortableAttributes": ["date"],
+                "rankingRules": [
+                    "words",
+                    "typo",
+                    "date:desc",
+                    "proximity",
+                    "attribute",
+                    "exactness"
+                ]
+            },
             timeout=15
         )
     except Exception as e:

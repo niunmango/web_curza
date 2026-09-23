@@ -5,9 +5,9 @@ import Layout from '../layouts/Layout.astro';
 <Layout title="Búsqueda Instantánea - CURZAS UNComa">
   <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
     <div class="mb-8">
-      <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Búsqueda Instantánea</h1>
+      <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Búsqueda Institucional</h1>
       <p class="text-gray-500 text-sm mt-1">
-        Motor de búsqueda indexado en tiempo real con tolerancia a errores tipográficos (Meilisearch).
+        Buscador de carreras, resoluciones, convocatorias, trámites y noticias del CURZAS.
       </p>
     </div>
 
@@ -124,13 +124,21 @@ import Layout from '../layouts/Layout.astro';
           const badgeClass = hit.type === 'page' ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200';
           const localUrl = `/contenido/${hit.id}`;
 
+          const isOld = hit.date && ((Date.now() - new Date(hit.date).getTime()) > 365 * 24 * 60 * 60 * 1000);
+          const oldBadge = isOld ? `
+            <span class="text-xs px-2 py-0.5 rounded-full font-medium bg-amber-50 text-amber-700 border border-amber-200">
+              Antiguo
+            </span>
+          ` : '';
+
           return `
             <article class="bg-white rounded-xl p-5 border border-gray-200 shadow-sm hover:shadow-md transition">
-              <div class="flex items-center gap-2 mb-1.5">
+              <div class="flex items-center gap-2 mb-1.5 flex-wrap">
                 <span class="text-xs px-2 py-0.5 rounded-full font-medium border ${badgeClass}">
                   ${typeBadge}
                 </span>
-                ${hit.date ? `<span class="text-xs text-gray-400">${new Date(hit.date).toLocaleDateString('es-AR')}</span>` : ''}
+                ${oldBadge}
+                ${hit.date ? `<span class="text-xs text-gray-400">${new Date(hit.date).toLocaleDateString('es-AR', { year: 'numeric', month: 'long', day: 'numeric' })}</span>` : ''}
               </div>
               <h2 class="text-lg font-bold text-gray-900 hover:text-blue-700 transition">
                 <a href="${localUrl}">${title}</a>
@@ -154,11 +162,11 @@ import Layout from '../layouts/Layout.astro';
         }).join('');
 
       } catch (err: any) {
-        statusText.textContent = "Error al conectar con el motor de búsqueda";
+        statusText.textContent = "Error al consultar el buscador";
         statsText.textContent = "";
         resultsContainer.innerHTML = `
           <div class="p-6 bg-red-50 border border-red-200 rounded-xl text-red-800 text-sm">
-            <strong>Aviso de conexión:</strong> No se pudo consultar Meilisearch. Asegurate de que los contenedores estén en ejecución y se haya ejecutado el importador inicial.
+            <strong>Aviso de conexión:</strong> No se pudo consultar el motor de búsqueda en este momento.
           </div>
         `;
       }
