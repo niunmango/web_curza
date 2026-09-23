@@ -2,7 +2,7 @@
 
 Modernización de la plataforma institucional del **Complejo Universitario Regional Zona Atlántica y Sur (CURZAS)** de la **Universidad Nacional del Comahue (UNComa)**.
 
-El proyecto implementa una arquitectura desacoplada, modular y de alto rendimiento que combina un frontend estático/SSR ultra veloz, un gestor de contenidos headless (CMS), un motor de búsqueda instantánea y un asistente inteligente basado en Retrieval-Augmented Generation (RAG).
+El proyecto implementa una arquitectura desacoplada, modular y de alto rendimiento que combina un frontend estático/SSR ultra veloz, un gestor de contenidos headless (CMS), un motor de búsqueda instantánea, un módulo de departamentos y carreras académicas, plano interactivo del campus y un asistente inteligente basado en Retrieval-Augmented Generation (RAG).
 
 ---
 
@@ -38,35 +38,40 @@ El proyecto implementa una arquitectura desacoplada, modular y de alto rendimien
 
 1. **Frontend (`frontend/`)**:
    - **Astro v4** (modo híbrido/SSR con `@astrojs/node` y Tailwind CSS).
-   - Componentes reactivos nativos sin dependencias pesadas.
-   - Interfaz institucional moderna, responsive y accesible.
-   - Visor dinámico de contenidos locales en `/contenido/[id]`.
+   - Look & feel institucional UNComa (azul institucional `#003366`, dorado `#F39200` y tipografía *Poppins*).
+   - **Departamentos y Carreras**: Módulo de unidades académicas (`/departamentos`, `/tecnologia`, etc.) con perfiles de egreso, planes de estudio y descarga de folletos y resoluciones PDF.
+   - **Plano Interactivo del Campus**: Mapa vectorial con buscador de aulas, categorías y niveles (`/plano`).
+   - **Gratuidad e Ingreso**: Información oficial sobre acceso libre, sin cupos ni aranceles en grado y pregrado (`/gratuidad-e-ingreso`).
+   - **Visor Dinámico de Contenidos**: Rizado de páginas y noticias históricas en `/contenido/[id]`.
 
 2. **Búsqueda Instantánea (`curza_search`)**:
-   - **Meilisearch v1.10** con tolerancia tipográfica y respuesta en < 20ms.
-   - Indexación automática de contenidos institucionales con URLs locales.
+   - **Meilisearch v1.10** con tolerancia tipográfica y tiempos de respuesta inferiores a 20 ms.
+   - Indexación automática de contenidos institucionales con URLs locales y ponderación por vigencia temporal.
 
 3. **Asistente IA Institucional & RAG (`services/rag/`)**:
-   - **FastAPI** + **FastEmbed** (`BAAI/bge-small-en-v1.5` en CPU, 384 dimensiones).
-   - **Qdrant v1.11**: Base vectorial para almacenamiento de embeddings de noticias y páginas institucionales.
-   - **LLM Externo**: Integración con Ollama (API compatible OpenAI) en `https://ollama.curza.com.ar/v1` con modelo `gemma4:12b`.
-   - Respuestas contextualizadas institucionalmente con enlaces de verificación hacia el portal local.
+   - **FastAPI** + **FastEmbed** (`sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2` en CPU, 384 dimensiones).
+   - **Qdrant v1.11**: Base vectorial para almacenamiento de embeddings de noticias, normativas y páginas institucionales.
+   - **LLM**: Integración con Ollama (API compatible OpenAI) con modelo instructivo y tratamiento de voseo formal.
+   - Respuestas contextualizadas institucionalmente con citas y enlaces de verificación hacia el portal.
 
 4. **CMS Headless (`cms/`)**:
    - **Strapi v5** conectado a **PostgreSQL 16**.
    - Gestión desacoplada de contenidos, noticias, carreras y secciones.
 
-5. **Gateway / Proxy (`deploy/Caddyfile`)**:
+5. **Gateway / Proxy Inverso (`deploy/Caddyfile`)**:
    - **Caddy v2**: Orquesta el ruteo interno de rutas y APIs:
      - `/` ➔ Frontend Astro
-     - `/contenido/*`, `/search`, `/chat` ➔ Frontend Astro
-     - `/admin/*`, `/api/cms/*`, `/uploads/*` ➔ Strapi CMS
+     - `/departamentos*`, `/tecnologia`, etc. ➔ Frontend Astro
+     - `/plano`, `/gratuidad-e-ingreso`, `/chat`, `/search` ➔ Frontend Astro
+     - `/contenido/*` ➔ Frontend Astro
+     - `/admin`, `/admin/*`, `/api/cms/*`, `/uploads/*` ➔ Strapi CMS
      - `/api/rag/*` ➔ FastAPI RAG Service
      - `/api/search/*` ➔ Meilisearch Proxy
    - Diseñado para funcionar en puertos alternativos en desarrollo (ej. `8888`) o en `80/443` con HTTPS automático en producción.
 
-6. **Script de Ingestión / Migración (`importer/`)**:
-   - `importer/import_curza.py`: Descarga publicaciones y páginas desde la API REST de WordPress (`https://admin.curza.uncoma.edu.ar/curza-api/wp/v2`), procesa HTML, genera vectores y sincroniza simultáneamente con Meilisearch y Qdrant.
+6. **Scripts de Ingestión y Migración (`importer/`)**:
+   - `importer/import_curza.py`: Descarga y normaliza publicaciones y páginas desde la API REST de WordPress (`https://admin.curza.uncoma.edu.ar/curza-api/wp/v2`), generando vectores simultáneos para Meilisearch y Qdrant.
+   - `importer/ingest_gratuidad.py`: Ingesta y asegura la persistencia de las normativas de gratuidad, ingreso y aranceles en el vector store.
 
 ---
 
@@ -80,16 +85,16 @@ cp .env.example .env
 
 ### Parámetros Principales (`.env`)
 
-| Variable | Descripción | Valor por defecto |
+| Variable | Descripción | Ejemplo / Valor por defecto |
 |---|---|---|
 | `CADDY_PORT` | Puerto de escucha en el host para el proxy Caddy | `8888` (Dev/Test) / `80` (Prod) |
-| `SITE_URL` | URL base accesible por el usuario final | `http://air.local:8888` |
-| `PUBLIC_SITE_URL` | URL base pública expuesta para el frontend Astro | `http://air.local:8888` |
+| `SITE_URL` | URL base accesible por el usuario final | `${SITE_URL}` (ej. `https://www.curza.uncoma.edu.ar`) |
+| `PUBLIC_SITE_URL` | URL base pública expuesta para el frontend Astro | `${SITE_URL}` (ej. `https://www.curza.uncoma.edu.ar`) |
 | `OLLAMA_EXTERNAL_URL` | Endpoint base de Ollama (compatible OpenAI) | `https://ollama.curza.com.ar/v1` |
 | `OLLAMA_MODEL` | Nombre del modelo en Ollama | `gemma4:12b` |
 | `MEILI_MASTER_KEY` | Llave de administración de Meilisearch | Cadena segura |
-| `DATABASE_NAME` | Nombre de base de datos PostgreSQL | `curza_strapi` |
-| `DATABASE_USERNAME` | Usuario PostgreSQL | `curza_user` |
+| `DATABASE_NAME` | Nombre de base de datos PostgreSQL | `curza_cms` |
+| `DATABASE_USERNAME` | Usuario PostgreSQL | `strapi` |
 | `DATABASE_PASSWORD` | Contraseña PostgreSQL | Cadena segura |
 
 ---
@@ -117,7 +122,7 @@ Debe mostrar los 7 contenedores activos:
 - `curza_postgres`
 
 ### 3. Ejecutar la Ingestión Inicial de Contenidos
-Para popular Meilisearch y Qdrant con los contenidos históricos de CURZAS:
+Para popular Meilisearch y Qdrant con los contenidos históricos y normativas:
 ```bash
 podman run --rm --network curza_network \
   -v $(pwd)/importer:/importer:ro \
@@ -126,8 +131,8 @@ podman run --rm --network curza_network \
   -e MEILISEARCH_HOST=curza_search \
   -e MEILISEARCH_PORT=7700 \
   -e MEILI_MASTER_KEY=curza_secure_search_key_2026 \
-  -e SITE_URL=http://air.local:8888 \
-  python:3.11-slim bash -c "pip install -r /importer/requirements.txt && python /importer/import_curza.py"
+  -e SITE_URL=${SITE_URL:-https://www.curza.uncoma.edu.ar} \
+  python:3.11-slim bash -c "pip install -r /importer/requirements.txt && python /importer/import_curza.py && python /importer/ingest_gratuidad.py"
 ```
 
 ---
@@ -140,8 +145,8 @@ El proyecto mantiene total compatibilidad con Docker y Docker Compose estándar.
 Editar `.env`:
 ```env
 CADDY_PORT=80
-SITE_URL=https://curza.uncoma.edu.ar
-PUBLIC_SITE_URL=https://curza.uncoma.edu.ar
+SITE_URL=https://www.curza.uncoma.edu.ar
+PUBLIC_SITE_URL=https://www.curza.uncoma.edu.ar
 ```
 
 ### 2. Iniciar con Docker Compose
@@ -150,9 +155,9 @@ docker compose up -d --build
 ```
 
 ### 3. Certificados SSL/TLS con Caddy
-En producción, Caddy puede gestionar automáticamente certificados SSL de Let's Encrypt actualizando `deploy/Caddyfile` para especificar el dominio directo:
+En producción, Caddy puede gestionar automáticamente certificados SSL de Let's Encrypt especificando el dominio en `deploy/Caddyfile`:
 ```caddyfile
-curza.uncoma.edu.ar {
+www.curza.uncoma.edu.ar {
     # reglas de proxy inversas existentes
 }
 ```
@@ -161,10 +166,22 @@ curza.uncoma.edu.ar {
 
 ## 📍 Rutas del Sistema
 
-- **Portal Web**: `http://air.local:8888/`
-- **Buscador Instantáneo**: `http://air.local:8888/search`
-- **Asistente IA**: `http://air.local:8888/chat`
-- **Detalle de Contenidos**: `http://air.local:8888/contenido/[id]`
-- **Panel Strapi CMS**: `http://air.local:8888/admin`
-- **Healthcheck RAG API**: `http://air.local:8888/api/rag/health`
-- **Healthcheck Meilisearch**: `http://air.local:8888/api/search/health`
+Todas las rutas se resuelven a partir de `${SITE_URL}` (ejemplo: `https://www.curza.uncoma.edu.ar`):
+
+- **Portal Web (Inicio)**: `${SITE_URL}/`
+- **Departamentos Académicos**: `${SITE_URL}/departamentos`
+  - *Dpto. de Ciencia y Tecnología*: `${SITE_URL}/tecnologia`
+  - *Dpto. de Psicopedagogía*: `${SITE_URL}/psicopedagogia`
+  - *Dpto. de Lengua, Literatura y Comunicación*: `${SITE_URL}/lengua-comunicacion`
+  - *Dpto. de Administración Pública*: `${SITE_URL}/admin-publica`
+  - *Dpto. de Estudios Políticos*: `${SITE_URL}/estudios-politicos`
+  - *Dpto. de Gestión Agropecuaria*: `${SITE_URL}/gestion-agropecuaria`
+  - *Coord. de Enfermería*: `${SITE_URL}/enfermeria`
+- **Plano Oficial del Campus**: `${SITE_URL}/plano`
+- **Gratuidad e Ingreso Sin Cupo**: `${SITE_URL}/gratuidad-e-ingreso`
+- **Buscador Instantáneo**: `${SITE_URL}/search`
+- **Asistente IA**: `${SITE_URL}/chat`
+- **Detalle de Contenidos**: `${SITE_URL}/contenido/[id]`
+- **Panel Strapi CMS**: `${SITE_URL}/admin`
+- **Healthcheck RAG API**: `${SITE_URL}/api/rag/health`
+- **Healthcheck Meilisearch**: `${SITE_URL}/api/search/health`
