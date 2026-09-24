@@ -75,9 +75,83 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="CURZAS RAG API", version="1.0", lifespan=lifespan)
 
+class ChatMessage(BaseModel):
+    role: str = Field(..., description="Rol del mensaje: 'user' o 'assistant'")
+    content: str = Field(..., description="Texto del mensaje")
+
 class ChatQuery(BaseModel):
     prompt: str = Field(..., min_length=2, max_length=1500, description="Consulta del usuario (entre 2 y 1500 caracteres)")
+    history: Optional[List[ChatMessage]] = []
     stream: Optional[bool] = False
+
+# Mapeo y palabras clave de los Departamentos Académicos para resolución de entidades y contexto
+DEPARTMENTS_META = {
+    "tecnologia": {
+        "name": "Departamento de Ciencia y Tecnología",
+        "url": "/tecnologia",
+        "contact_id": 98301,
+        "dept_id": 98101,
+        "keywords": ["ciencia y tecnologia", "tecnologia", "cyt", "sistemas", "software", "desarrollo web", "informatica", "programacion", "computacion"]
+    },
+    "psicopedagogia": {
+        "name": "Departamento de Psicopedagogía",
+        "url": "/psicopedagogia",
+        "contact_id": 98302,
+        "dept_id": 98102,
+        "keywords": ["psicopedagogia", "pedagogia", "psico", "psicopedagogo", "psicopedagoga", "aprendizaje"]
+    },
+    "lengua-comunicacion": {
+        "name": "Departamento de Lengua, Literatura y Comunicación",
+        "url": "/lengua-comunicacion",
+        "contact_id": 98303,
+        "dept_id": 98103,
+        "keywords": ["lengua y comunicacion", "literatura y comunicacion", "lengua", "literatura", "comunicacion", "letras", "gestion cultural", "arte y sociedad"]
+    },
+    "admin-publica": {
+        "name": "Departamento de Administración Pública",
+        "url": "/admin-publica",
+        "contact_id": 98304,
+        "dept_id": 98104,
+        "keywords": ["administracion publica", "administracion", "recursos humanos", "rrhh", "administracion general"]
+    },
+    "estudios-politicos": {
+        "name": "Departamento de Estudios Políticos",
+        "url": "/estudios-politicos",
+        "contact_id": 98305,
+        "dept_id": 98105,
+        "keywords": ["estudios politicos", "ciencias politicas", "ciencia politica", "politica", "estudios sociales"]
+    },
+    "gestion-agropecuaria": {
+        "name": "Departamento de Gestión Agropecuaria",
+        "url": "/gestion-agropecuaria",
+        "contact_id": 98306,
+        "dept_id": 98106,
+        "keywords": ["gestion agropecuaria", "ciencias agropecuarias", "agropecuaria", "agro", "espacios verdes", "produccion agropecuaria"]
+    },
+    "enfermeria": {
+        "name": "Coordinación de la Carrera de Enfermería",
+        "url": "/enfermeria",
+        "contact_id": 98307,
+        "dept_id": 98107,
+        "keywords": ["carrera de enfermeria", "coordinacion de enfermeria", "enfermeria", "enfermero", "enfermera"]
+    }
+}
+
+def normalize_text(text: str) -> str:
+    text = text.lower()
+    text = re.sub(r'[áàäâ]', 'a', text)
+    text = re.sub(r'[éèëê]', 'e', text)
+    text = re.sub(r'[íìïî]', 'i', text)
+    text = re.sub(r'[óòöô]', 'o', text)
+    text = re.sub(r'[úùüû]', 'u', text)
+    text = re.sub(r'[ñ]', 'n', text)
+    return text
+
+def matches_department_keyword(norm_text: str, keyword: str) -> bool:
+    norm_kw = normalize_text(keyword)
+    if len(norm_kw) <= 4:
+        return bool(re.search(r'\b' + re.escape(norm_kw) + r'\b', norm_text))
+    return norm_kw in norm_text
 
 class IngestDocument(BaseModel):
     id: int
@@ -166,7 +240,47 @@ async def chat_rag(query: ChatQuery):
     model = get_embedding_model()
     client = get_qdrant()
 
-    query_vector = list(model.embed([clean_prompt]))[0].tolist()
+    # Detección y contextualización conversacional de departamentos
+    norm_prompt = normalize_text(clean_prompt)
+    detected_dept = None
+
+    # 1. Buscar coincidencia de departamento en el prompt actual
+    for dept_key, info in DEPARTMENTS_META.items():
+        if any(matches_department_keyword(norm_prompt, kw) for kw in info["keywords"]):
+            detected_dept = info
+            break
+
+    # 2. Si no se detectó en el prompt actual, buscar en el historial de conversación reciente (turnos anteriores)
+    if not detected_dept and query.history:
+        for msg in reversed(query.history):
+            norm_content = normalize_text(msg.content)
+            for dept_key, info in DEPARTMENTS_META.items():
+                if any(matches_department_keyword(norm_content, kw) for kw in info["keywords"]) or normalize_text(info["name"]) in norm_content:
+                    detected_dept = info
+                    break
+            if detected_dept:
+                break
+
+    # Si hay departamento detectado y el prompt actual no lo menciona (pregunta anafórica/de seguimiento),
+    # enriquecer la búsqueda vectorial
+    search_prompt = clean_prompt
+    if detected_dept and not any(matches_department_keyword(norm_prompt, kw) for kw in detected_dept["keywords"]):
+        search_prompt = f"{clean_prompt} {detected_dept['name']}"
+
+    # Vectorizar prompt enriquecido
+    query_vector = list(model.embed([search_prompt]))[0].tolist()
+
+    # Si se detectó un departamento, recuperar directamente sus documentos institucionales canónicos
+    direct_hits = []
+    direct_ids = [detected_dept["contact_id"], detected_dept["dept_id"]] if detected_dept else []
+    if direct_ids:
+        try:
+            if hasattr(client, "retrieve"):
+                pts = client.retrieve(collection_name=COLLECTION_NAME, ids=direct_ids, with_payload=True)
+                for pt in pts:
+                    direct_hits.append(pt)
+        except Exception as e:
+            logger.warning(f"Error recuperando puntos directos de departamento: {e}")
 
     raw_hits = []
     try:
@@ -188,15 +302,29 @@ async def chat_rag(query: ChatQuery):
         logger.error(f"Error buscando en Qdrant: {e}")
         raw_hits = []
 
+    # Combinar direct_hits con raw_hits evitando duplicados
+    seen_ids = set()
+    combined_hits = []
+    for dh in direct_hits:
+        seen_ids.add(dh.id)
+        combined_hits.append((dh, 0.98))
+
+    for h in raw_hits:
+        if h.id not in seen_ids:
+            seen_ids.add(h.id)
+            combined_hits.append((h, float(getattr(h, "score", 1.0))))
+
     # Re-ponderar candidatos según antigüedad (> 1 año = penalización drástica)
     now = datetime.now()
     scored_hits = []
-    for h in raw_hits:
+    for h, initial_score in combined_hits:
         payload = h.payload or {}
         date_str = payload.get("date", "")
-        score = float(getattr(h, "score", 1.0))
+        score = initial_score
         is_old = False
-        if date_str:
+        if direct_ids and h.id in direct_ids:
+            is_old = False
+        elif date_str:
             try:
                 doc_dt = datetime.fromisoformat(date_str.replace("Z", "+00:00")).replace(tzinfo=None)
                 age_days = (now - doc_dt).days
@@ -245,6 +373,21 @@ async def chat_rag(query: ChatQuery):
         f"Contexto institucional:\n{context}"
     )
 
+    # Construir historial de mensajes conversacionales para el LLM
+    conversation_messages = [{"role": "system", "content": system_prompt}]
+    if query.history:
+        for msg in query.history[-6:]:
+            role = "user" if msg.role == "user" else "assistant"
+            conversation_messages.append({"role": role, "content": msg.content})
+    conversation_messages.append({"role": "user", "content": clean_prompt})
+
+    # Texto con historial para endpoints heredados
+    if query.history:
+        history_text = "\n".join([f"{'Usuario' if m.role == 'user' else 'Asistente'}: {m.content}" for m in query.history[-6:]])
+        prompt_with_history = f"Historial previo de la conversación:\n{history_text}\n\nConsulta actual:\n{clean_prompt}"
+    else:
+        prompt_with_history = clean_prompt
+
     # Si se solicita streaming (Server-Sent Events)
     if query.stream:
         async def event_generator():
@@ -258,10 +401,7 @@ async def chat_rag(query: ChatQuery):
                         endpoint = f"{OLLAMA_URL.rstrip('/')}/chat/completions"
                         payload = {
                             "model": OLLAMA_MODEL,
-                            "messages": [
-                                {"role": "system", "content": system_prompt},
-                                {"role": "user", "content": clean_prompt}
-                            ],
+                            "messages": conversation_messages,
                             "temperature": 0.2,
                             "max_tokens": 650,
                             "reasoning_effort": "none",
@@ -289,7 +429,7 @@ async def chat_rag(query: ChatQuery):
                         endpoint = f"{OLLAMA_URL.rstrip('/')}/api/generate"
                         payload = {
                             "model": OLLAMA_MODEL,
-                            "prompt": clean_prompt,
+                            "prompt": prompt_with_history,
                             "system": system_prompt,
                             "stream": True,
                             "options": {
@@ -337,10 +477,7 @@ async def chat_rag(query: ChatQuery):
                 endpoint = f"{OLLAMA_URL.rstrip('/')}/chat/completions"
                 payload = {
                     "model": OLLAMA_MODEL,
-                    "messages": [
-                        {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": clean_prompt}
-                    ],
+                    "messages": conversation_messages,
                     "temperature": 0.2,
                     "max_tokens": 650,
                     "reasoning_effort": "none",
@@ -354,7 +491,7 @@ async def chat_rag(query: ChatQuery):
                 endpoint = f"{OLLAMA_URL.rstrip('/')}/api/generate"
                 payload = {
                     "model": OLLAMA_MODEL,
-                    "prompt": clean_prompt,
+                    "prompt": prompt_with_history,
                     "system": system_prompt,
                     "stream": False,
                     "options": {

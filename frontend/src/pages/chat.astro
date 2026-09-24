@@ -76,6 +76,13 @@ import Layout from '../layouts/Layout.astro';
     const sendBtn = document.getElementById('send-btn') as HTMLButtonElement;
     const clearBtn = document.getElementById('clear-chat') as HTMLButtonElement;
 
+    // Historial de la conversación para soporte multi-turno
+    interface ChatHistoryItem {
+      role: 'user' | 'assistant';
+      content: string;
+    }
+    const conversationHistory: ChatHistoryItem[] = [];
+
     // Sugerencias de botones
     document.querySelectorAll('.suggest-btn').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -85,6 +92,7 @@ import Layout from '../layouts/Layout.astro';
     });
 
     clearBtn?.addEventListener('click', () => {
+      conversationHistory.length = 0;
       window.location.reload();
     });
 
@@ -117,7 +125,11 @@ import Layout from '../layouts/Layout.astro';
         const res = await fetch('/api/rag/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt, stream: true })
+          body: JSON.stringify({
+            prompt,
+            history: conversationHistory.slice(-6),
+            stream: true
+          })
         });
 
         if (!res.ok) {
@@ -132,6 +144,8 @@ import Layout from '../layouts/Layout.astro';
           removeLoadingMessage(loadingId);
           const data = await res.json();
           appendAssistantMessage(data.answer, data.sources || []);
+          conversationHistory.push({ role: 'user', content: prompt });
+          conversationHistory.push({ role: 'assistant', content: data.answer });
           return;
         }
 
@@ -196,6 +210,11 @@ import Layout from '../layouts/Layout.astro';
         } else {
           removeLoadingMessage(loadingId);
           appendAssistantMessage(fullText || 'Sin respuesta del modelo.', sources);
+        }
+
+        if (fullText) {
+          conversationHistory.push({ role: 'user', content: prompt });
+          conversationHistory.push({ role: 'assistant', content: fullText });
         }
 
       } catch (err: any) {
