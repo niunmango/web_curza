@@ -4,6 +4,11 @@ import json
 import re
 import logging
 from datetime import datetime
+try:
+    from zoneinfo import ZoneInfo
+    ARGENTINA_TZ = ZoneInfo("America/Argentina/Buenos_Aires")
+except Exception:
+    ARGENTINA_TZ = None
 from contextlib import asynccontextmanager
 from typing import List, Optional
 from fastapi import FastAPI, HTTPException
@@ -153,6 +158,31 @@ def matches_department_keyword(norm_text: str, keyword: str) -> bool:
         return bool(re.search(r'\b' + re.escape(norm_kw) + r'\b', norm_text))
     return norm_kw in norm_text
 
+# Mapeo y palabras clave para Calendario Académico, Clases y Fechas
+CALENDAR_DOC_IDS = [1000295, 1000296]
+CALENDAR_TOPIC_KEYWORDS = [
+    "calendario", "calendario academico", "clase", "clases", "cursar", "cursado",
+    "semana del estudiante", "receso", "vacaciones", "final", "finales", "mesa de examen",
+    "mesas de examen", "turno de examen", "inscripcion", "inscripciones", "asueto", "cuatrimestre",
+    "actividad academica", "abierto", "abre", "atiende", "feriado", "feriados",
+    "enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
+]
+TEMPORAL_KEYWORDS = [
+    "hoy", "manana", "esta semana", "este mes", "este cuatrimestre", "ayer"
+]
+
+def get_current_date_info():
+    if ARGENTINA_TZ:
+        now_ar = datetime.now(ARGENTINA_TZ)
+    else:
+        now_ar = datetime.now()
+    dias = ["lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"]
+    meses = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"]
+    dia_nombre = dias[now_ar.weekday()]
+    mes_nombre = meses[now_ar.month - 1]
+    fecha_formateada = f"{dia_nombre.capitalize()} {now_ar.day} de {mes_nombre} de {now_ar.year}"
+    return now_ar, fecha_formateada, dia_nombre, mes_nombre
+
 class IngestDocument(BaseModel):
     id: int
     title: str
@@ -240,6 +270,8 @@ async def chat_rag(query: ChatQuery):
     model = get_embedding_model()
     client = get_qdrant()
 
+    now_ar, fecha_str, dia_nombre, mes_nombre = get_current_date_info()
+
     # Detección y contextualización conversacional de departamentos
     norm_prompt = normalize_text(clean_prompt)
     detected_dept = None
@@ -261,18 +293,37 @@ async def chat_rag(query: ChatQuery):
             if detected_dept:
                 break
 
-    # Si hay departamento detectado y el prompt actual no lo menciona (pregunta anafórica/de seguimiento),
-    # enriquecer la búsqueda vectorial
+    # Detección de consultas sobre Calendario Académico / Clases / Fechas / Asuetos
+    is_calendar_query = any(matches_department_keyword(norm_prompt, kw) for kw in CALENDAR_TOPIC_KEYWORDS)
+    if not is_calendar_query and query.history:
+        for msg in reversed(query.history):
+            norm_content = normalize_text(msg.content)
+            if any(matches_department_keyword(norm_content, kw) for kw in CALENDAR_TOPIC_KEYWORDS):
+                is_calendar_query = True
+                break
+
+    is_temporal_query = any(matches_department_keyword(norm_prompt, kw) for kw in TEMPORAL_KEYWORDS)
+
+    # Enriquecer la búsqueda vectorial
     search_prompt = clean_prompt
     if detected_dept and not any(matches_department_keyword(norm_prompt, kw) for kw in detected_dept["keywords"]):
         search_prompt = f"{clean_prompt} {detected_dept['name']}"
+    elif is_calendar_query and is_temporal_query:
+        search_prompt = f"{clean_prompt} {now_ar.day} de {mes_nombre} de {now_ar.year} calendario academico semana del estudiante"
+    elif is_calendar_query and not any(kw in norm_prompt for kw in ["calendario", "academico"]):
+        search_prompt = f"{clean_prompt} calendario academico curzas"
 
     # Vectorizar prompt enriquecido
     query_vector = list(model.embed([search_prompt]))[0].tolist()
 
-    # Si se detectó un departamento, recuperar directamente sus documentos institucionales canónicos
+    # Documentos directos canónicos prioritarios
     direct_hits = []
-    direct_ids = [detected_dept["contact_id"], detected_dept["dept_id"]] if detected_dept else []
+    direct_ids = []
+    if detected_dept:
+        direct_ids.extend([detected_dept["contact_id"], detected_dept["dept_id"]])
+    if is_calendar_query:
+        direct_ids.extend(CALENDAR_DOC_IDS)
+
     if direct_ids:
         try:
             if hasattr(client, "retrieve"):
@@ -280,7 +331,7 @@ async def chat_rag(query: ChatQuery):
                 for pt in pts:
                     direct_hits.append(pt)
         except Exception as e:
-            logger.warning(f"Error recuperando puntos directos de departamento: {e}")
+            logger.warning(f"Error recuperando puntos directos canónicos: {e}")
 
     raw_hits = []
     try:
@@ -364,6 +415,13 @@ async def chat_rag(query: ChatQuery):
         "Respondé a las preguntas de estudiantes, docentes y público de manera formal, concisa y basada estrictamente "
         "en el contexto institucional provisto a continuación. Tratá siempre al estudiante o consultante de 'vos' "
         "(utilizá voseo argentino: 'podés', 'debés', 'tenés', etc., nunca trates de 'tú').\n\n"
+        f"Fecha oficial y contexto temporal actual:\n"
+        f"- Fecha de hoy: {fecha_str} (Horario oficial de Argentina / CURZAS).\n"
+        "- Usá siempre esta fecha exacta para responder consultas sobre 'hoy', 'mañana', 'esta semana', 'este mes', etc. "
+        "Bajo ninguna circunstancia le pidas al usuario que te diga la fecha actual, ya que la conocés con total precisión.\n"
+        "- Si el usuario consulta si hoy o esta semana hay clases o actividades, cotejá la fecha de hoy con el Calendario Académico oficial. "
+        "Por ejemplo, si la fecha actual cae entre el 21 y el 26 de septiembre (Semana de les Estudiantes), feriados, asuetos o receso, "
+        "confirmale con seguridad que no hay clases ni actividad académica.\n\n"
         "Criterio estricto de vigencia temporal:\n"
         "- Los artículos o documentos marcados como [DOCUMENTO ANTIGUO] tienen una fecha de publicación de más de un año. "
         "Dales un peso mucho menor en tu respuesta y priorizá siempre la información de documentos recientes o vigentes.\n"
