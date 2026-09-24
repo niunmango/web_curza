@@ -387,26 +387,43 @@ async def chat_rag(query: ChatQuery):
                 pass
         scored_hits.append((score, is_old, date_str, h))
 
-    # Ordenar por score re-ponderado descendente y tomar los mejores 4 candidatos
+    # Ordenar por score re-ponderado descendente
     scored_hits.sort(key=lambda x: x[0], reverse=True)
-    top_candidates = scored_hits[:4]
 
+    # Límite estricto de contexto (MAX_CONTEXT_CHARS = 4800) para no saturar la ventana de atención de Ollama
+    # y evitar que Ollama trunque los primeros documentos del prompt donde están los datos prioritarios.
+    MAX_CONTEXT_CHARS = 4800
     context_parts = []
     sources = []
-    for score, is_old, date_str, h in top_candidates:
+    current_chars = 0
+
+    for score, is_old, date_str, h in scored_hits:
         p = h.payload or {}
         title = p.get('title', 'Sin título')
         url = p.get('url', '')
         content = p.get('content', '')
+        chunk_len = len(content)
+
+        # Si agregar este documento excede el presupuesto y ya tenemos contexto prioritario, cortar
+        if current_chars + chunk_len > MAX_CONTEXT_CHARS and context_parts:
+            break
+
         if url and url not in sources:
             sources.append(url)
+
         if is_old:
             header = f"[DOCUMENTO ANTIGUO - Publicado hace más de 1 año ({date_str[:10]})] Fuente: {title} ({url})"
         elif date_str:
             header = f"[DOCUMENTO RECIENTE ({date_str[:10]})] Fuente: {title} ({url})"
         else:
             header = f"[DOCUMENTO INSTITUCIONAL] Fuente: {title} ({url})"
+
         context_parts.append(f"{header}\n{content}")
+        current_chars += len(header) + chunk_len
+
+        # Limitar a máximo 3 documentos seleccionados
+        if len(context_parts) >= 3:
+            break
 
     context = "\n---\n".join(context_parts) if context_parts else "No se encontró contexto indexado."
 
